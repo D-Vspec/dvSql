@@ -93,6 +93,10 @@ COMMENT_BLOCK   \/\*([^*]|\*[^/])*\*\/
 "UNION"         { update_column(); return UNION; }
 "INTERSECT"     { update_column(); return INTERSECT; }
 "EXCEPT"        { update_column(); return EXCEPT; }
+"DESC"          { update_column(); return DESC; }
+"DESCRIBE"      { update_column(); return DESC; }
+"SHOW"          { update_column(); return SHOW; }
+"TABLES"        { update_column(); return TABLES; }
 
 "INT"           { update_column(); return INT_TYPE; }
 "INTEGER"       { update_column(); return INTEGER_TYPE; }

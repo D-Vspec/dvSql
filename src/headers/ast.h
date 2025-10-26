@@ -26,6 +26,8 @@ typedef enum {
     NODE_DELETE_STMT,
     NODE_CREATE_TABLE_STMT,
     NODE_DROP_TABLE_STMT,
+    NODE_DESC_STMT,
+    NODE_SHOW_TABLES_STMT,
     
     NODE_COLUMN_LIST,
     NODE_VALUE_LIST,
@@ -190,6 +192,14 @@ struct ast_node {
         struct {
             char* table_name;
         } drop_table_stmt;
+        
+        struct {
+            char* table_name;
+        } desc_stmt;
+        
+        struct {
+            /* No additional data needed for SHOW TABLES */
+        } show_tables_stmt;
     } data;
 };
 
@@ -200,6 +210,8 @@ ast_node_t* create_update_stmt(char* table_name, column_list_t* set_columns, val
 ast_node_t* create_delete_stmt(char* table_name, expression_t* where_clause);
 ast_node_t* create_create_table_stmt(char* table_name, column_def_t* columns);
 ast_node_t* create_drop_table_stmt(char* table_name);
+ast_node_t* create_desc_stmt(char* table_name);
+ast_node_t* create_show_tables_stmt(void);
 
 expression_t* create_identifier_expr(char* identifier);
 expression_t* create_literal_expr(literal_value_t value, int literal_type);

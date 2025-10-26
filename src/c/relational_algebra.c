@@ -167,6 +167,26 @@ ra_node_t* create_ra_sorting(ra_attribute_list_t* sort_attrs, ra_node_t* input) 
     return node;
 }
 
+ra_node_t* create_ra_desc(const char* table_name) {
+    ra_node_t* node = malloc(sizeof(ra_node_t));
+    if (!node) return NULL;
+    
+    node->type = RA_DESC;
+    node->data.desc.table_name = strdup(table_name);
+    
+    return node;
+}
+
+ra_node_t* create_ra_show_tables(void) {
+    ra_node_t* node = malloc(sizeof(ra_node_t));
+    if (!node) return NULL;
+    
+    node->type = RA_SHOW_TABLES;
+    /* No additional data needed */
+    
+    return node;
+}
+
 /* Helper functions for attributes and conditions */
 ra_attribute_t* create_ra_attribute(const char* name, const char* alias, const char* table_name) {
     ra_attribute_t* attr = malloc(sizeof(ra_attribute_t));
@@ -252,6 +272,10 @@ ra_node_t* sql_to_relational_algebra(ast_node_t* sql_ast) {
             return convert_update_stmt(sql_ast);
         case NODE_DELETE_STMT:
             return convert_delete_stmt(sql_ast);
+        case NODE_DESC_STMT:
+            return convert_desc_stmt(sql_ast);
+        case NODE_SHOW_TABLES_STMT:
+            return convert_show_tables_stmt(sql_ast);
         default:
             return NULL;  /* Unsupported statement type for RA conversion */
     }
@@ -320,6 +344,18 @@ ra_node_t* convert_delete_stmt(ast_node_t* delete_stmt) {
     
     /* This is a simplified representation - would need more complex logic for full implementation */
     return NULL;
+}
+
+ra_node_t* convert_desc_stmt(ast_node_t* desc_stmt) {
+    if (!desc_stmt || desc_stmt->type != NODE_DESC_STMT) return NULL;
+    
+    return create_ra_desc(desc_stmt->data.desc_stmt.table_name);
+}
+
+ra_node_t* convert_show_tables_stmt(ast_node_t* show_tables_stmt) {
+    if (!show_tables_stmt || show_tables_stmt->type != NODE_SHOW_TABLES_STMT) return NULL;
+    
+    return create_ra_show_tables();
 }
 
 /* Helper conversion functions */
@@ -422,6 +458,8 @@ const char* ra_operator_to_symbol(ra_operator_type_t type) {
         case RA_RENAME: return "ρ";
         case RA_AGGREGATION: return "γ";
         case RA_SORTING: return "τ";
+        case RA_DESC: return "DESC";
+        case RA_SHOW_TABLES: return "SHOW";
         default: return "?";
     }
 }
@@ -442,6 +480,8 @@ const char* ra_operator_to_name(ra_operator_type_t type) {
         case RA_RENAME: return "RENAME";
         case RA_AGGREGATION: return "AGGREGATION";
         case RA_SORTING: return "SORTING";
+        case RA_DESC: return "DESCRIBE_TABLE";
+        case RA_SHOW_TABLES: return "SHOW_TABLES";
         default: return "UNKNOWN";
     }
 }
@@ -565,6 +605,14 @@ void print_ra_tree(ra_node_t* node, int indent) {
             print_ra_tree(node->data.sorting.input, indent + 1);
             break;
             
+        case RA_DESC:
+            printf(" [TABLE: %s]\n", node->data.desc.table_name);
+            break;
+            
+        case RA_SHOW_TABLES:
+            printf("\n");
+            break;
+            
         default:
             printf(" [UNKNOWN]\n");
             break;
@@ -653,6 +701,14 @@ void print_ra_mathematical(ra_node_t* node) {
             printf(")");
             break;
             
+        case RA_DESC:
+            printf("DESC(%s)", node->data.desc.table_name);
+            break;
+            
+        case RA_SHOW_TABLES:
+            printf("SHOW_TABLES()");
+            break;
+            
         default:
             printf("UNKNOWN");
             break;
@@ -714,6 +770,14 @@ void free_ra_node(ra_node_t* node) {
         case RA_SORTING:
             free_ra_attribute_list(node->data.sorting.sort_attrs);
             free_ra_node(node->data.sorting.input);
+            break;
+            
+        case RA_DESC:
+            free(node->data.desc.table_name);
+            break;
+            
+        case RA_SHOW_TABLES:
+            /* No data to free */
             break;
     }
     

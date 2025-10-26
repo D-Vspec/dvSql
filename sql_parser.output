@@ -29,12 +29,12 @@ Terminals unused in grammar
 
 Rules useless in grammar
 
-  103 having_clause: HAVING condition
-  104              | ε
+  107 having_clause: HAVING condition
+  108              | ε
 
 
-State 139 conflicts: 1 shift/reduce
-State 151 conflicts: 1 shift/reduce
+State 145 conflicts: 1 shift/reduce
+State 157 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -52,168 +52,174 @@ Grammar
     7          | delete_statement
     8          | create_table_statement
     9          | drop_table_statement
+   10          | desc_statement
+   11          | show_tables_statement
 
-   10 select_statement: SELECT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause
-   11                 | SELECT DISTINCT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause
+   12 select_statement: SELECT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause
+   13                 | SELECT DISTINCT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause
 
-   12 select_column_list: MULTIPLY
-   13                   | column_list
+   14 select_column_list: MULTIPLY
+   15                   | column_list
 
-   14 column_list: column_list COMMA expression
-   15            | expression
+   16 column_list: column_list COMMA expression
+   17            | expression
 
-   16 table_reference: IDENTIFIER
-   17                | IDENTIFIER AS IDENTIFIER
-   18                | IDENTIFIER IDENTIFIER
+   18 table_reference: IDENTIFIER
+   19                | IDENTIFIER AS IDENTIFIER
+   20                | IDENTIFIER IDENTIFIER
 
-   19 optional_join_clause_list: join_clause_list
-   20                          | ε
+   21 optional_join_clause_list: join_clause_list
+   22                          | ε
 
-   21 join_clause_list: join_clause_list join_clause
-   22                 | join_clause
+   23 join_clause_list: join_clause_list join_clause
+   24                 | join_clause
 
-   23 join_clause: join_type JOIN table_reference ON condition
-   24            | JOIN table_reference ON condition
+   25 join_clause: join_type JOIN table_reference ON condition
+   26            | JOIN table_reference ON condition
 
-   25 join_type: INNER
-   26          | LEFT
-   27          | RIGHT
-   28          | LEFT OUTER
-   29          | RIGHT OUTER
+   27 join_type: INNER
+   28          | LEFT
+   29          | RIGHT
+   30          | LEFT OUTER
+   31          | RIGHT OUTER
 
-   30 where_clause: WHERE condition
-   31             | ε
+   32 where_clause: WHERE condition
+   33             | ε
 
-   32 order_by_clause: ORDER BY column_list
-   33                | ε
+   34 order_by_clause: ORDER BY column_list
+   35                | ε
 
-   34 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN
-   35                 | INSERT INTO IDENTIFIER VALUES LPAREN value_list RPAREN
+   36 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN
+   37                 | INSERT INTO IDENTIFIER VALUES LPAREN value_list RPAREN
 
-   36 value_list: value_list COMMA expression
-   37           | expression
+   38 value_list: value_list COMMA expression
+   39           | expression
 
-   38 update_statement: UPDATE IDENTIFIER SET update_column_list where_clause
+   40 update_statement: UPDATE IDENTIFIER SET update_column_list where_clause
 
-   39 update_column_list: update_column_list COMMA IDENTIFIER EQUAL expression
-   40                   | IDENTIFIER EQUAL expression
+   41 update_column_list: update_column_list COMMA IDENTIFIER EQUAL expression
+   42                   | IDENTIFIER EQUAL expression
 
-   41 delete_statement: DELETE FROM IDENTIFIER where_clause
+   43 delete_statement: DELETE FROM IDENTIFIER where_clause
 
-   42 create_table_statement: CREATE TABLE IDENTIFIER LPAREN column_definition_list RPAREN
+   44 create_table_statement: CREATE TABLE IDENTIFIER LPAREN column_definition_list RPAREN
 
-   43 column_definition_list: column_definition_list COMMA column_definition
-   44                       | column_definition
+   45 column_definition_list: column_definition_list COMMA column_definition
+   46                       | column_definition
 
-   45 column_definition: IDENTIFIER data_type
-   46                  | IDENTIFIER data_type LPAREN INTEGER_LITERAL RPAREN
-   47                  | IDENTIFIER data_type PRIMARY KEY
-   48                  | IDENTIFIER data_type NOT NULL_TOK
-   49                  | IDENTIFIER data_type UNIQUE
-   50                  | IDENTIFIER data_type AUTO_INCREMENT
-   51                  | IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN NOT NULL_TOK
-   52                  | IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN UNIQUE
+   47 column_definition: IDENTIFIER data_type
+   48                  | IDENTIFIER data_type LPAREN INTEGER_LITERAL RPAREN
+   49                  | IDENTIFIER data_type PRIMARY KEY
+   50                  | IDENTIFIER data_type NOT NULL_TOK
+   51                  | IDENTIFIER data_type UNIQUE
+   52                  | IDENTIFIER data_type AUTO_INCREMENT
+   53                  | IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN NOT NULL_TOK
+   54                  | IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN UNIQUE
 
-   53 data_type: INT_TYPE
-   54          | INTEGER_TYPE
-   55          | VARCHAR_TYPE
-   56          | CHAR_TYPE
-   57          | TEXT_TYPE
-   58          | DECIMAL_TYPE
-   59          | NUMERIC_TYPE
-   60          | FLOAT_TYPE
-   61          | REAL_TYPE
-   62          | DATE_TYPE
-   63          | TIME_TYPE
-   64          | TIMESTAMP_TYPE
-   65          | BOOLEAN_TYPE
+   55 data_type: INT_TYPE
+   56          | INTEGER_TYPE
+   57          | VARCHAR_TYPE
+   58          | CHAR_TYPE
+   59          | TEXT_TYPE
+   60          | DECIMAL_TYPE
+   61          | NUMERIC_TYPE
+   62          | FLOAT_TYPE
+   63          | REAL_TYPE
+   64          | DATE_TYPE
+   65          | TIME_TYPE
+   66          | TIMESTAMP_TYPE
+   67          | BOOLEAN_TYPE
 
-   66 drop_table_statement: DROP TABLE IDENTIFIER
+   68 drop_table_statement: DROP TABLE IDENTIFIER
 
-   67 expression: literal
-   68           | column_reference
-   69           | function_call
-   70           | expression PLUS expression
-   71           | expression MINUS expression
-   72           | expression MULTIPLY expression
-   73           | expression DIVIDE expression
-   74           | expression MODULO expression
-   75           | LPAREN expression RPAREN
+   69 desc_statement: DESC IDENTIFIER
 
-   76 condition: expression EQUAL expression
-   77          | expression NOT_EQUAL expression
-   78          | expression LESS_THAN expression
-   79          | expression GREATER_THAN expression
-   80          | expression LESS_EQUAL expression
-   81          | expression GREATER_EQUAL expression
-   82          | condition AND condition
-   83          | condition OR condition
-   84          | NOT condition
-   85          | LPAREN condition RPAREN
-   86          | expression
+   70 show_tables_statement: SHOW TABLES
 
-   87 literal: INTEGER_LITERAL
-   88        | DECIMAL_LITERAL
-   89        | STRING_LITERAL
-   90        | NULL_TOK
-   91        | TRUE_TOK
-   92        | FALSE_TOK
+   71 expression: literal
+   72           | column_reference
+   73           | function_call
+   74           | expression PLUS expression
+   75           | expression MINUS expression
+   76           | expression MULTIPLY expression
+   77           | expression DIVIDE expression
+   78           | expression MODULO expression
+   79           | LPAREN expression RPAREN
 
-   93 column_reference: IDENTIFIER
-   94                 | IDENTIFIER DOT IDENTIFIER
+   80 condition: expression EQUAL expression
+   81          | expression NOT_EQUAL expression
+   82          | expression LESS_THAN expression
+   83          | expression GREATER_THAN expression
+   84          | expression LESS_EQUAL expression
+   85          | expression GREATER_EQUAL expression
+   86          | condition AND condition
+   87          | condition OR condition
+   88          | NOT condition
+   89          | LPAREN condition RPAREN
+   90          | expression
 
-   95 function_call: IDENTIFIER LPAREN RPAREN
-   96              | IDENTIFIER LPAREN value_list RPAREN
-   97              | COUNT LPAREN MULTIPLY RPAREN
-   98              | COUNT LPAREN expression RPAREN
-   99              | SUM LPAREN expression RPAREN
-  100              | AVG LPAREN expression RPAREN
-  101              | MIN LPAREN expression RPAREN
-  102              | MAX LPAREN expression RPAREN
+   91 literal: INTEGER_LITERAL
+   92        | DECIMAL_LITERAL
+   93        | STRING_LITERAL
+   94        | NULL_TOK
+   95        | TRUE_TOK
+   96        | FALSE_TOK
+
+   97 column_reference: IDENTIFIER
+   98                 | IDENTIFIER DOT IDENTIFIER
+
+   99 function_call: IDENTIFIER LPAREN RPAREN
+  100              | IDENTIFIER LPAREN value_list RPAREN
+  101              | COUNT LPAREN MULTIPLY RPAREN
+  102              | COUNT LPAREN expression RPAREN
+  103              | SUM LPAREN expression RPAREN
+  104              | AVG LPAREN expression RPAREN
+  105              | MIN LPAREN expression RPAREN
+  106              | MAX LPAREN expression RPAREN
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
     error (256)
-    IDENTIFIER <string_val> (258) 16 17 18 34 35 38 39 40 41 42 45 46 47 48 49 50 51 52 66 93 94 95 96
-    STRING_LITERAL <string_val> (259) 89
-    INTEGER_LITERAL <int_val> (260) 46 51 52 87
-    DECIMAL_LITERAL <float_val> (261) 88
-    SELECT (262) 10 11
-    FROM (263) 10 11 41
-    WHERE (264) 30
-    INSERT (265) 34 35
-    INTO (266) 34 35
-    VALUES (267) 34 35
-    UPDATE (268) 38
-    SET (269) 38
-    DELETE (270) 41
-    CREATE (271) 42
-    TABLE (272) 42 66
-    DROP (273) 66
+    IDENTIFIER <string_val> (258) 18 19 20 36 37 40 41 42 43 44 47 48 49 50 51 52 53 54 68 69 97 98 99 100
+    STRING_LITERAL <string_val> (259) 93
+    INTEGER_LITERAL <int_val> (260) 48 53 54 91
+    DECIMAL_LITERAL <float_val> (261) 92
+    SELECT (262) 12 13
+    FROM (263) 12 13 43
+    WHERE (264) 32
+    INSERT (265) 36 37
+    INTO (266) 36 37
+    VALUES (267) 36 37
+    UPDATE (268) 40
+    SET (269) 40
+    DELETE (270) 43
+    CREATE (271) 44
+    TABLE (272) 44 68
+    DROP (273) 68
     ALTER (274)
-    AND (275) 82
-    OR (276) 83
-    NOT (277) 48 51 84
-    NULL_TOK (278) 48 51 90
-    TRUE_TOK (279) 91
-    FALSE_TOK (280) 92
-    AS (281) 17
-    ORDER (282) 32
-    BY (283) 32
+    AND (275) 86
+    OR (276) 87
+    NOT (277) 50 53 88
+    NULL_TOK (278) 50 53 94
+    TRUE_TOK (279) 95
+    FALSE_TOK (280) 96
+    AS (281) 19
+    ORDER (282) 34
+    BY (283) 34
     GROUP (284)
     HAVING (285)
     LIMIT (286)
     OFFSET (287)
-    JOIN (288) 23 24
-    INNER (289) 25
-    LEFT (290) 26 28
-    RIGHT (291) 27 29
-    OUTER (292) 28 29
-    ON (293) 23 24
+    JOIN (288) 25 26
+    INNER (289) 27
+    LEFT (290) 28 30
+    RIGHT (291) 29 31
+    OUTER (292) 30 31
+    ON (293) 25 26
     USING (294)
-    DISTINCT (295) 11
+    DISTINCT (295) 13
     ALL (296)
     IN (297)
     EXISTS (298)
@@ -223,139 +229,148 @@ Terminals, with rules where they appear
     UNION (302)
     INTERSECT (303)
     EXCEPT (304)
-    INT_TYPE (305) 53
-    INTEGER_TYPE (306) 54
-    VARCHAR_TYPE (307) 51 52 55
-    CHAR_TYPE (308) 56
-    TEXT_TYPE (309) 57
-    DECIMAL_TYPE (310) 58
-    NUMERIC_TYPE (311) 59
-    FLOAT_TYPE (312) 60
-    REAL_TYPE (313) 61
-    DATE_TYPE (314) 62
-    TIME_TYPE (315) 63
-    TIMESTAMP_TYPE (316) 64
-    BOOLEAN_TYPE (317) 65
-    PRIMARY (318) 47
-    KEY (319) 47
-    FOREIGN (320)
-    REFERENCES (321)
-    UNIQUE (322) 49 52
-    CHECK (323)
-    DEFAULT (324)
-    AUTO_INCREMENT (325) 50
-    EQUAL (326) 39 40 76
-    NOT_EQUAL (327) 77
-    LESS_THAN (328) 78
-    GREATER_THAN (329) 79
-    LESS_EQUAL (330) 80
-    GREATER_EQUAL (331) 81
-    PLUS (332) 70
-    MINUS (333) 71
-    MULTIPLY (334) 12 72 97
-    DIVIDE (335) 73
-    MODULO (336) 74
-    LPAREN (337) 34 35 42 46 51 52 75 85 95 96 97 98 99 100 101 102
-    RPAREN (338) 34 35 42 46 51 52 75 85 95 96 97 98 99 100 101 102
-    COMMA (339) 14 36 39 43
-    SEMICOLON (340) 2 3
-    DOT (341) 94
-    COUNT (342) 97 98
-    SUM (343) 99
-    AVG (344) 100
-    MIN (345) 101
-    MAX (346) 102
-    UNKNOWN_TOKEN (347)
+    DESC (305) 69
+    SHOW (306) 70
+    TABLES (307) 70
+    INT_TYPE (308) 55
+    INTEGER_TYPE (309) 56
+    VARCHAR_TYPE (310) 53 54 57
+    CHAR_TYPE (311) 58
+    TEXT_TYPE (312) 59
+    DECIMAL_TYPE (313) 60
+    NUMERIC_TYPE (314) 61
+    FLOAT_TYPE (315) 62
+    REAL_TYPE (316) 63
+    DATE_TYPE (317) 64
+    TIME_TYPE (318) 65
+    TIMESTAMP_TYPE (319) 66
+    BOOLEAN_TYPE (320) 67
+    PRIMARY (321) 49
+    KEY (322) 49
+    FOREIGN (323)
+    REFERENCES (324)
+    UNIQUE (325) 51 54
+    CHECK (326)
+    DEFAULT (327)
+    AUTO_INCREMENT (328) 52
+    EQUAL (329) 41 42 80
+    NOT_EQUAL (330) 81
+    LESS_THAN (331) 82
+    GREATER_THAN (332) 83
+    LESS_EQUAL (333) 84
+    GREATER_EQUAL (334) 85
+    PLUS (335) 74
+    MINUS (336) 75
+    MULTIPLY (337) 14 76 101
+    DIVIDE (338) 77
+    MODULO (339) 78
+    LPAREN (340) 36 37 44 48 53 54 79 89 99 100 101 102 103 104 105 106
+    RPAREN (341) 36 37 44 48 53 54 79 89 99 100 101 102 103 104 105 106
+    COMMA (342) 16 38 41 45
+    SEMICOLON (343) 2 3
+    DOT (344) 98
+    COUNT (345) 101 102
+    SUM (346) 103
+    AVG (347) 104
+    MIN (348) 105
+    MAX (349) 106
+    UNKNOWN_TOKEN (350)
 
 
 Nonterminals, with rules where they appear
 
-    $accept (93)
+    $accept (96)
         on left: 0
-    program (94)
+    program (97)
         on left: 1
         on right: 0
-    statement_list (95)
+    statement_list (98)
         on left: 2 3
         on right: 1 2
-    statement <ast_node> (96)
-        on left: 4 5 6 7 8 9
+    statement <ast_node> (99)
+        on left: 4 5 6 7 8 9 10 11
         on right: 2 3
-    select_statement <ast_node> (97)
-        on left: 10 11
-        on right: 4
-    select_column_list <column_list> (98)
+    select_statement <ast_node> (100)
         on left: 12 13
-        on right: 10 11
-    column_list <column_list> (99)
+        on right: 4
+    select_column_list <column_list> (101)
         on left: 14 15
-        on right: 13 14 32 34
-    table_reference <table_ref> (100)
-        on left: 16 17 18
-        on right: 10 11 23 24
-    optional_join_clause_list <join_clause> (101)
-        on left: 19 20
-        on right: 10 11
-    join_clause_list <join_clause> (102)
+        on right: 12 13
+    column_list <column_list> (102)
+        on left: 16 17
+        on right: 15 16 34 36
+    table_reference <table_ref> (103)
+        on left: 18 19 20
+        on right: 12 13 25 26
+    optional_join_clause_list <join_clause> (104)
         on left: 21 22
-        on right: 19 21
-    join_clause <join_clause> (103)
+        on right: 12 13
+    join_clause_list <join_clause> (105)
         on left: 23 24
-        on right: 21 22
-    join_type <join_type> (104)
-        on left: 25 26 27 28 29
-        on right: 23
-    where_clause <expression> (105)
-        on left: 30 31
-        on right: 10 11 38 41
-    order_by_clause <column_list> (106)
+        on right: 21 23
+    join_clause <join_clause> (106)
+        on left: 25 26
+        on right: 23 24
+    join_type <join_type> (107)
+        on left: 27 28 29 30 31
+        on right: 25
+    where_clause <expression> (108)
         on left: 32 33
-        on right: 10 11
-    insert_statement <ast_node> (107)
+        on right: 12 13 40 43
+    order_by_clause <column_list> (109)
         on left: 34 35
-        on right: 5
-    value_list <value_list> (108)
+        on right: 12 13
+    insert_statement <ast_node> (110)
         on left: 36 37
-        on right: 34 35 36 96
-    update_statement <ast_node> (109)
-        on left: 38
+        on right: 5
+    value_list <value_list> (111)
+        on left: 38 39
+        on right: 36 37 38 100
+    update_statement <ast_node> (112)
+        on left: 40
         on right: 6
-    update_column_list <value_list> (110)
-        on left: 39 40
-        on right: 38 39
-    delete_statement <ast_node> (111)
-        on left: 41
+    update_column_list <value_list> (113)
+        on left: 41 42
+        on right: 40 41
+    delete_statement <ast_node> (114)
+        on left: 43
         on right: 7
-    create_table_statement <ast_node> (112)
-        on left: 42
+    create_table_statement <ast_node> (115)
+        on left: 44
         on right: 8
-    column_definition_list <column_def> (113)
-        on left: 43 44
-        on right: 42 43
-    column_definition <column_def> (114)
-        on left: 45 46 47 48 49 50 51 52
-        on right: 43 44
-    data_type <data_type> (115)
-        on left: 53 54 55 56 57 58 59 60 61 62 63 64 65
-        on right: 45 46 47 48 49 50
-    drop_table_statement <ast_node> (116)
-        on left: 66
+    column_definition_list <column_def> (116)
+        on left: 45 46
+        on right: 44 45
+    column_definition <column_def> (117)
+        on left: 47 48 49 50 51 52 53 54
+        on right: 45 46
+    data_type <data_type> (118)
+        on left: 55 56 57 58 59 60 61 62 63 64 65 66 67
+        on right: 47 48 49 50 51 52
+    drop_table_statement <ast_node> (119)
+        on left: 68
         on right: 9
-    expression <expression> (117)
-        on left: 67 68 69 70 71 72 73 74 75
-        on right: 14 15 36 37 39 40 70 71 72 73 74 75 76 77 78 79 80 81 86 98 99 100 101 102
-    condition <expression> (118)
-        on left: 76 77 78 79 80 81 82 83 84 85 86
-        on right: 23 24 30 82 83 84 85
-    literal <expression> (119)
-        on left: 87 88 89 90 91 92
-        on right: 67
-    column_reference <expression> (120)
-        on left: 93 94
-        on right: 68
-    function_call <expression> (121)
-        on left: 95 96 97 98 99 100 101 102
-        on right: 69
+    desc_statement <ast_node> (120)
+        on left: 69
+        on right: 10
+    show_tables_statement <ast_node> (121)
+        on left: 70
+        on right: 11
+    expression <expression> (122)
+        on left: 71 72 73 74 75 76 77 78 79
+        on right: 16 17 38 39 41 42 74 75 76 77 78 79 80 81 82 83 84 85 90 102 103 104 105 106
+    condition <expression> (123)
+        on left: 80 81 82 83 84 85 86 87 88 89 90
+        on right: 25 26 32 86 87 88 89
+    literal <expression> (124)
+        on left: 91 92 93 94 95 96
+        on right: 71
+    column_reference <expression> (125)
+        on left: 97 98
+        on right: 72
+    function_call <expression> (126)
+        on left: 99 100 101 102 103 104 105 106
+        on right: 73
 
 
 State 0
@@ -368,91 +383,109 @@ State 0
     DELETE  shift, and go to state 4
     CREATE  shift, and go to state 5
     DROP    shift, and go to state 6
+    DESC    shift, and go to state 7
+    SHOW    shift, and go to state 8
 
-    program                 go to state 7
-    statement_list          go to state 8
-    statement               go to state 9
-    select_statement        go to state 10
-    insert_statement        go to state 11
-    update_statement        go to state 12
-    delete_statement        go to state 13
-    create_table_statement  go to state 14
-    drop_table_statement    go to state 15
+    program                 go to state 9
+    statement_list          go to state 10
+    statement               go to state 11
+    select_statement        go to state 12
+    insert_statement        go to state 13
+    update_statement        go to state 14
+    delete_statement        go to state 15
+    create_table_statement  go to state 16
+    drop_table_statement    go to state 17
+    desc_statement          go to state 18
+    show_tables_statement   go to state 19
 
 
 State 1
 
-   10 select_statement: SELECT • select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause
-   11                 | SELECT • DISTINCT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause
+   12 select_statement: SELECT • select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause
+   13                 | SELECT • DISTINCT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    DISTINCT         shift, and go to state 23
-    MULTIPLY         shift, and go to state 24
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    DISTINCT         shift, and go to state 27
+    MULTIPLY         shift, and go to state 28
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    select_column_list  go to state 31
-    column_list         go to state 32
-    expression          go to state 33
-    literal             go to state 34
-    column_reference    go to state 35
-    function_call       go to state 36
+    select_column_list  go to state 35
+    column_list         go to state 36
+    expression          go to state 37
+    literal             go to state 38
+    column_reference    go to state 39
+    function_call       go to state 40
 
 
 State 2
 
-   34 insert_statement: INSERT • INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN
-   35                 | INSERT • INTO IDENTIFIER VALUES LPAREN value_list RPAREN
+   36 insert_statement: INSERT • INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN
+   37                 | INSERT • INTO IDENTIFIER VALUES LPAREN value_list RPAREN
 
-    INTO  shift, and go to state 37
+    INTO  shift, and go to state 41
 
 
 State 3
 
-   38 update_statement: UPDATE • IDENTIFIER SET update_column_list where_clause
+   40 update_statement: UPDATE • IDENTIFIER SET update_column_list where_clause
 
-    IDENTIFIER  shift, and go to state 38
+    IDENTIFIER  shift, and go to state 42
 
 
 State 4
 
-   41 delete_statement: DELETE • FROM IDENTIFIER where_clause
+   43 delete_statement: DELETE • FROM IDENTIFIER where_clause
 
-    FROM  shift, and go to state 39
+    FROM  shift, and go to state 43
 
 
 State 5
 
-   42 create_table_statement: CREATE • TABLE IDENTIFIER LPAREN column_definition_list RPAREN
+   44 create_table_statement: CREATE • TABLE IDENTIFIER LPAREN column_definition_list RPAREN
 
-    TABLE  shift, and go to state 40
+    TABLE  shift, and go to state 44
 
 
 State 6
 
-   66 drop_table_statement: DROP • TABLE IDENTIFIER
+   68 drop_table_statement: DROP • TABLE IDENTIFIER
 
-    TABLE  shift, and go to state 41
+    TABLE  shift, and go to state 45
 
 
 State 7
 
-    0 $accept: program • $end
+   69 desc_statement: DESC • IDENTIFIER
 
-    $end  shift, and go to state 42
+    IDENTIFIER  shift, and go to state 46
 
 
 State 8
+
+   70 show_tables_statement: SHOW • TABLES
+
+    TABLES  shift, and go to state 47
+
+
+State 9
+
+    0 $accept: program • $end
+
+    $end  shift, and go to state 48
+
+
+State 10
 
     1 program: statement_list •
     2 statement_list: statement_list • statement SEMICOLON
@@ -463,2460 +496,2492 @@ State 8
     DELETE  shift, and go to state 4
     CREATE  shift, and go to state 5
     DROP    shift, and go to state 6
+    DESC    shift, and go to state 7
+    SHOW    shift, and go to state 8
 
     $default  reduce using rule 1 (program)
 
-    statement               go to state 43
-    select_statement        go to state 10
-    insert_statement        go to state 11
-    update_statement        go to state 12
-    delete_statement        go to state 13
-    create_table_statement  go to state 14
-    drop_table_statement    go to state 15
+    statement               go to state 49
+    select_statement        go to state 12
+    insert_statement        go to state 13
+    update_statement        go to state 14
+    delete_statement        go to state 15
+    create_table_statement  go to state 16
+    drop_table_statement    go to state 17
+    desc_statement          go to state 18
+    show_tables_statement   go to state 19
 
 
-State 9
+State 11
 
     3 statement_list: statement • SEMICOLON
 
-    SEMICOLON  shift, and go to state 44
+    SEMICOLON  shift, and go to state 50
 
 
-State 10
+State 12
 
     4 statement: select_statement •
 
     $default  reduce using rule 4 (statement)
 
 
-State 11
+State 13
 
     5 statement: insert_statement •
 
     $default  reduce using rule 5 (statement)
 
 
-State 12
+State 14
 
     6 statement: update_statement •
 
     $default  reduce using rule 6 (statement)
 
 
-State 13
+State 15
 
     7 statement: delete_statement •
 
     $default  reduce using rule 7 (statement)
 
 
-State 14
+State 16
 
     8 statement: create_table_statement •
 
     $default  reduce using rule 8 (statement)
 
 
-State 15
+State 17
 
     9 statement: drop_table_statement •
 
     $default  reduce using rule 9 (statement)
 
 
-State 16
-
-   93 column_reference: IDENTIFIER •
-   94                 | IDENTIFIER • DOT IDENTIFIER
-   95 function_call: IDENTIFIER • LPAREN RPAREN
-   96              | IDENTIFIER • LPAREN value_list RPAREN
-
-    LPAREN  shift, and go to state 45
-    DOT     shift, and go to state 46
-
-    $default  reduce using rule 93 (column_reference)
-
-
-State 17
-
-   89 literal: STRING_LITERAL •
-
-    $default  reduce using rule 89 (literal)
-
-
 State 18
 
-   87 literal: INTEGER_LITERAL •
+   10 statement: desc_statement •
 
-    $default  reduce using rule 87 (literal)
+    $default  reduce using rule 10 (statement)
 
 
 State 19
 
-   88 literal: DECIMAL_LITERAL •
+   11 statement: show_tables_statement •
 
-    $default  reduce using rule 88 (literal)
+    $default  reduce using rule 11 (statement)
 
 
 State 20
 
-   90 literal: NULL_TOK •
+   97 column_reference: IDENTIFIER •
+   98                 | IDENTIFIER • DOT IDENTIFIER
+   99 function_call: IDENTIFIER • LPAREN RPAREN
+  100              | IDENTIFIER • LPAREN value_list RPAREN
 
-    $default  reduce using rule 90 (literal)
+    LPAREN  shift, and go to state 51
+    DOT     shift, and go to state 52
+
+    $default  reduce using rule 97 (column_reference)
 
 
 State 21
 
-   91 literal: TRUE_TOK •
+   93 literal: STRING_LITERAL •
 
-    $default  reduce using rule 91 (literal)
+    $default  reduce using rule 93 (literal)
 
 
 State 22
 
-   92 literal: FALSE_TOK •
+   91 literal: INTEGER_LITERAL •
 
-    $default  reduce using rule 92 (literal)
+    $default  reduce using rule 91 (literal)
 
 
 State 23
 
-   11 select_statement: SELECT DISTINCT • select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause
+   92 literal: DECIMAL_LITERAL •
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    MULTIPLY         shift, and go to state 24
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    select_column_list  go to state 47
-    column_list         go to state 32
-    expression          go to state 33
-    literal             go to state 34
-    column_reference    go to state 35
-    function_call       go to state 36
+    $default  reduce using rule 92 (literal)
 
 
 State 24
 
-   12 select_column_list: MULTIPLY •
+   94 literal: NULL_TOK •
 
-    $default  reduce using rule 12 (select_column_list)
+    $default  reduce using rule 94 (literal)
 
 
 State 25
 
-   75 expression: LPAREN • expression RPAREN
+   95 literal: TRUE_TOK •
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 48
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    $default  reduce using rule 95 (literal)
 
 
 State 26
 
-   97 function_call: COUNT • LPAREN MULTIPLY RPAREN
-   98              | COUNT • LPAREN expression RPAREN
+   96 literal: FALSE_TOK •
 
-    LPAREN  shift, and go to state 49
+    $default  reduce using rule 96 (literal)
 
 
 State 27
 
-   99 function_call: SUM • LPAREN expression RPAREN
+   13 select_statement: SELECT DISTINCT • select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause
 
-    LPAREN  shift, and go to state 50
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    MULTIPLY         shift, and go to state 28
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    select_column_list  go to state 53
+    column_list         go to state 36
+    expression          go to state 37
+    literal             go to state 38
+    column_reference    go to state 39
+    function_call       go to state 40
 
 
 State 28
 
-  100 function_call: AVG • LPAREN expression RPAREN
+   14 select_column_list: MULTIPLY •
 
-    LPAREN  shift, and go to state 51
+    $default  reduce using rule 14 (select_column_list)
 
 
 State 29
 
-  101 function_call: MIN • LPAREN expression RPAREN
+   79 expression: LPAREN • expression RPAREN
 
-    LPAREN  shift, and go to state 52
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 54
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 30
 
-  102 function_call: MAX • LPAREN expression RPAREN
+  101 function_call: COUNT • LPAREN MULTIPLY RPAREN
+  102              | COUNT • LPAREN expression RPAREN
 
-    LPAREN  shift, and go to state 53
+    LPAREN  shift, and go to state 55
 
 
 State 31
 
-   10 select_statement: SELECT select_column_list • FROM table_reference optional_join_clause_list where_clause order_by_clause
+  103 function_call: SUM • LPAREN expression RPAREN
 
-    FROM  shift, and go to state 54
+    LPAREN  shift, and go to state 56
 
 
 State 32
 
-   13 select_column_list: column_list •
-   14 column_list: column_list • COMMA expression
+  104 function_call: AVG • LPAREN expression RPAREN
 
-    COMMA  shift, and go to state 55
-
-    $default  reduce using rule 13 (select_column_list)
+    LPAREN  shift, and go to state 57
 
 
 State 33
 
-   15 column_list: expression •
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
+  105 function_call: MIN • LPAREN expression RPAREN
 
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 15 (column_list)
+    LPAREN  shift, and go to state 58
 
 
 State 34
 
-   67 expression: literal •
+  106 function_call: MAX • LPAREN expression RPAREN
 
-    $default  reduce using rule 67 (expression)
+    LPAREN  shift, and go to state 59
 
 
 State 35
 
-   68 expression: column_reference •
+   12 select_statement: SELECT select_column_list • FROM table_reference optional_join_clause_list where_clause order_by_clause
 
-    $default  reduce using rule 68 (expression)
+    FROM  shift, and go to state 60
 
 
 State 36
 
-   69 expression: function_call •
+   15 select_column_list: column_list •
+   16 column_list: column_list • COMMA expression
 
-    $default  reduce using rule 69 (expression)
+    COMMA  shift, and go to state 61
+
+    $default  reduce using rule 15 (select_column_list)
 
 
 State 37
 
-   34 insert_statement: INSERT INTO • IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN
-   35                 | INSERT INTO • IDENTIFIER VALUES LPAREN value_list RPAREN
+   17 column_list: expression •
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
 
-    IDENTIFIER  shift, and go to state 61
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 17 (column_list)
 
 
 State 38
 
-   38 update_statement: UPDATE IDENTIFIER • SET update_column_list where_clause
+   71 expression: literal •
 
-    SET  shift, and go to state 62
+    $default  reduce using rule 71 (expression)
 
 
 State 39
 
-   41 delete_statement: DELETE FROM • IDENTIFIER where_clause
+   72 expression: column_reference •
 
-    IDENTIFIER  shift, and go to state 63
+    $default  reduce using rule 72 (expression)
 
 
 State 40
 
-   42 create_table_statement: CREATE TABLE • IDENTIFIER LPAREN column_definition_list RPAREN
+   73 expression: function_call •
 
-    IDENTIFIER  shift, and go to state 64
+    $default  reduce using rule 73 (expression)
 
 
 State 41
 
-   66 drop_table_statement: DROP TABLE • IDENTIFIER
+   36 insert_statement: INSERT INTO • IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN
+   37                 | INSERT INTO • IDENTIFIER VALUES LPAREN value_list RPAREN
 
-    IDENTIFIER  shift, and go to state 65
+    IDENTIFIER  shift, and go to state 67
 
 
 State 42
+
+   40 update_statement: UPDATE IDENTIFIER • SET update_column_list where_clause
+
+    SET  shift, and go to state 68
+
+
+State 43
+
+   43 delete_statement: DELETE FROM • IDENTIFIER where_clause
+
+    IDENTIFIER  shift, and go to state 69
+
+
+State 44
+
+   44 create_table_statement: CREATE TABLE • IDENTIFIER LPAREN column_definition_list RPAREN
+
+    IDENTIFIER  shift, and go to state 70
+
+
+State 45
+
+   68 drop_table_statement: DROP TABLE • IDENTIFIER
+
+    IDENTIFIER  shift, and go to state 71
+
+
+State 46
+
+   69 desc_statement: DESC IDENTIFIER •
+
+    $default  reduce using rule 69 (desc_statement)
+
+
+State 47
+
+   70 show_tables_statement: SHOW TABLES •
+
+    $default  reduce using rule 70 (show_tables_statement)
+
+
+State 48
 
     0 $accept: program $end •
 
     $default  accept
 
 
-State 43
+State 49
 
     2 statement_list: statement_list statement • SEMICOLON
 
-    SEMICOLON  shift, and go to state 66
+    SEMICOLON  shift, and go to state 72
 
 
-State 44
+State 50
 
     3 statement_list: statement SEMICOLON •
 
     $default  reduce using rule 3 (statement_list)
 
 
-State 45
-
-   95 function_call: IDENTIFIER LPAREN • RPAREN
-   96              | IDENTIFIER LPAREN • value_list RPAREN
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    RPAREN           shift, and go to state 67
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    value_list        go to state 68
-    expression        go to state 69
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 46
-
-   94 column_reference: IDENTIFIER DOT • IDENTIFIER
-
-    IDENTIFIER  shift, and go to state 70
-
-
-State 47
-
-   11 select_statement: SELECT DISTINCT select_column_list • FROM table_reference optional_join_clause_list where_clause order_by_clause
-
-    FROM  shift, and go to state 71
-
-
-State 48
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   75           | LPAREN expression • RPAREN
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-    RPAREN    shift, and go to state 72
-
-
-State 49
-
-   97 function_call: COUNT LPAREN • MULTIPLY RPAREN
-   98              | COUNT LPAREN • expression RPAREN
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    MULTIPLY         shift, and go to state 73
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 74
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 50
-
-   99 function_call: SUM LPAREN • expression RPAREN
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 75
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
 State 51
 
-  100 function_call: AVG LPAREN • expression RPAREN
+   99 function_call: IDENTIFIER LPAREN • RPAREN
+  100              | IDENTIFIER LPAREN • value_list RPAREN
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    RPAREN           shift, and go to state 73
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    expression        go to state 76
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    value_list        go to state 74
+    expression        go to state 75
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 52
 
-  101 function_call: MIN LPAREN • expression RPAREN
+   98 column_reference: IDENTIFIER DOT • IDENTIFIER
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 77
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    IDENTIFIER  shift, and go to state 76
 
 
 State 53
 
-  102 function_call: MAX LPAREN • expression RPAREN
+   13 select_statement: SELECT DISTINCT select_column_list • FROM table_reference optional_join_clause_list where_clause order_by_clause
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 78
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    FROM  shift, and go to state 77
 
 
 State 54
 
-   10 select_statement: SELECT select_column_list FROM • table_reference optional_join_clause_list where_clause order_by_clause
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+   79           | LPAREN expression • RPAREN
 
-    IDENTIFIER  shift, and go to state 79
-
-    table_reference  go to state 80
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+    RPAREN    shift, and go to state 78
 
 
 State 55
 
-   14 column_list: column_list COMMA • expression
+  101 function_call: COUNT LPAREN • MULTIPLY RPAREN
+  102              | COUNT LPAREN • expression RPAREN
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    MULTIPLY         shift, and go to state 79
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    expression        go to state 81
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    expression        go to state 80
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 56
 
-   70 expression: expression PLUS • expression
+  103 function_call: SUM LPAREN • expression RPAREN
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    expression        go to state 82
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    expression        go to state 81
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 57
 
-   71 expression: expression MINUS • expression
+  104 function_call: AVG LPAREN • expression RPAREN
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    expression        go to state 83
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    expression        go to state 82
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 58
 
-   72 expression: expression MULTIPLY • expression
+  105 function_call: MIN LPAREN • expression RPAREN
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    expression        go to state 84
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    expression        go to state 83
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 59
 
-   73 expression: expression DIVIDE • expression
+  106 function_call: MAX LPAREN • expression RPAREN
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    expression        go to state 85
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    expression        go to state 84
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 60
 
-   74 expression: expression MODULO • expression
+   12 select_statement: SELECT select_column_list FROM • table_reference optional_join_clause_list where_clause order_by_clause
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    IDENTIFIER  shift, and go to state 85
 
-    expression        go to state 86
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    table_reference  go to state 86
 
 
 State 61
 
-   34 insert_statement: INSERT INTO IDENTIFIER • LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN
-   35                 | INSERT INTO IDENTIFIER • VALUES LPAREN value_list RPAREN
+   16 column_list: column_list COMMA • expression
 
-    VALUES  shift, and go to state 87
-    LPAREN  shift, and go to state 88
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 87
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 62
 
-   38 update_statement: UPDATE IDENTIFIER SET • update_column_list where_clause
+   74 expression: expression PLUS • expression
 
-    IDENTIFIER  shift, and go to state 89
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    update_column_list  go to state 90
+    expression        go to state 88
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 63
 
-   41 delete_statement: DELETE FROM IDENTIFIER • where_clause
+   75 expression: expression MINUS • expression
 
-    WHERE  shift, and go to state 91
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    $default  reduce using rule 31 (where_clause)
-
-    where_clause  go to state 92
+    expression        go to state 89
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 64
 
-   42 create_table_statement: CREATE TABLE IDENTIFIER • LPAREN column_definition_list RPAREN
+   76 expression: expression MULTIPLY • expression
 
-    LPAREN  shift, and go to state 93
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 90
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 65
 
-   66 drop_table_statement: DROP TABLE IDENTIFIER •
+   77 expression: expression DIVIDE • expression
 
-    $default  reduce using rule 66 (drop_table_statement)
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 91
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 66
+
+   78 expression: expression MODULO • expression
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 92
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 67
+
+   36 insert_statement: INSERT INTO IDENTIFIER • LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN
+   37                 | INSERT INTO IDENTIFIER • VALUES LPAREN value_list RPAREN
+
+    VALUES  shift, and go to state 93
+    LPAREN  shift, and go to state 94
+
+
+State 68
+
+   40 update_statement: UPDATE IDENTIFIER SET • update_column_list where_clause
+
+    IDENTIFIER  shift, and go to state 95
+
+    update_column_list  go to state 96
+
+
+State 69
+
+   43 delete_statement: DELETE FROM IDENTIFIER • where_clause
+
+    WHERE  shift, and go to state 97
+
+    $default  reduce using rule 33 (where_clause)
+
+    where_clause  go to state 98
+
+
+State 70
+
+   44 create_table_statement: CREATE TABLE IDENTIFIER • LPAREN column_definition_list RPAREN
+
+    LPAREN  shift, and go to state 99
+
+
+State 71
+
+   68 drop_table_statement: DROP TABLE IDENTIFIER •
+
+    $default  reduce using rule 68 (drop_table_statement)
+
+
+State 72
 
     2 statement_list: statement_list statement SEMICOLON •
 
     $default  reduce using rule 2 (statement_list)
 
 
-State 67
-
-   95 function_call: IDENTIFIER LPAREN RPAREN •
-
-    $default  reduce using rule 95 (function_call)
-
-
-State 68
-
-   36 value_list: value_list • COMMA expression
-   96 function_call: IDENTIFIER LPAREN value_list • RPAREN
-
-    RPAREN  shift, and go to state 94
-    COMMA   shift, and go to state 95
-
-
-State 69
-
-   37 value_list: expression •
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 37 (value_list)
-
-
-State 70
-
-   94 column_reference: IDENTIFIER DOT IDENTIFIER •
-
-    $default  reduce using rule 94 (column_reference)
-
-
-State 71
-
-   11 select_statement: SELECT DISTINCT select_column_list FROM • table_reference optional_join_clause_list where_clause order_by_clause
-
-    IDENTIFIER  shift, and go to state 79
-
-    table_reference  go to state 96
-
-
-State 72
-
-   75 expression: LPAREN expression RPAREN •
-
-    $default  reduce using rule 75 (expression)
-
-
 State 73
 
-   97 function_call: COUNT LPAREN MULTIPLY • RPAREN
-
-    RPAREN  shift, and go to state 97
-
-
-State 74
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   98 function_call: COUNT LPAREN expression • RPAREN
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-    RPAREN    shift, and go to state 98
-
-
-State 75
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   99 function_call: SUM LPAREN expression • RPAREN
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-    RPAREN    shift, and go to state 99
-
-
-State 76
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-  100 function_call: AVG LPAREN expression • RPAREN
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-    RPAREN    shift, and go to state 100
-
-
-State 77
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-  101 function_call: MIN LPAREN expression • RPAREN
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-    RPAREN    shift, and go to state 101
-
-
-State 78
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-  102 function_call: MAX LPAREN expression • RPAREN
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-    RPAREN    shift, and go to state 102
-
-
-State 79
-
-   16 table_reference: IDENTIFIER •
-   17                | IDENTIFIER • AS IDENTIFIER
-   18                | IDENTIFIER • IDENTIFIER
-
-    IDENTIFIER  shift, and go to state 103
-    AS          shift, and go to state 104
-
-    $default  reduce using rule 16 (table_reference)
-
-
-State 80
-
-   10 select_statement: SELECT select_column_list FROM table_reference • optional_join_clause_list where_clause order_by_clause
-
-    JOIN   shift, and go to state 105
-    INNER  shift, and go to state 106
-    LEFT   shift, and go to state 107
-    RIGHT  shift, and go to state 108
-
-    $default  reduce using rule 20 (optional_join_clause_list)
-
-    optional_join_clause_list  go to state 109
-    join_clause_list           go to state 110
-    join_clause                go to state 111
-    join_type                  go to state 112
-
-
-State 81
-
-   14 column_list: column_list COMMA expression •
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 14 (column_list)
-
-
-State 82
-
-   70 expression: expression • PLUS expression
-   70           | expression PLUS expression •
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 70 (expression)
-
-
-State 83
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   71           | expression MINUS expression •
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 71 (expression)
-
-
-State 84
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   72           | expression MULTIPLY expression •
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-
-    $default  reduce using rule 72 (expression)
-
-
-State 85
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   73           | expression DIVIDE expression •
-   74           | expression • MODULO expression
-
-    $default  reduce using rule 73 (expression)
-
-
-State 86
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   74           | expression MODULO expression •
-
-    $default  reduce using rule 74 (expression)
-
-
-State 87
-
-   35 insert_statement: INSERT INTO IDENTIFIER VALUES • LPAREN value_list RPAREN
-
-    LPAREN  shift, and go to state 113
-
-
-State 88
-
-   34 insert_statement: INSERT INTO IDENTIFIER LPAREN • column_list RPAREN VALUES LPAREN value_list RPAREN
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    column_list       go to state 114
-    expression        go to state 33
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 89
-
-   40 update_column_list: IDENTIFIER • EQUAL expression
-
-    EQUAL  shift, and go to state 115
-
-
-State 90
-
-   38 update_statement: UPDATE IDENTIFIER SET update_column_list • where_clause
-   39 update_column_list: update_column_list • COMMA IDENTIFIER EQUAL expression
-
-    WHERE  shift, and go to state 91
-    COMMA  shift, and go to state 116
-
-    $default  reduce using rule 31 (where_clause)
-
-    where_clause  go to state 117
-
-
-State 91
-
-   30 where_clause: WHERE • condition
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NOT              shift, and go to state 118
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 119
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 120
-    condition         go to state 121
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 92
-
-   41 delete_statement: DELETE FROM IDENTIFIER where_clause •
-
-    $default  reduce using rule 41 (delete_statement)
-
-
-State 93
-
-   42 create_table_statement: CREATE TABLE IDENTIFIER LPAREN • column_definition_list RPAREN
-
-    IDENTIFIER  shift, and go to state 122
-
-    column_definition_list  go to state 123
-    column_definition       go to state 124
-
-
-State 94
-
-   96 function_call: IDENTIFIER LPAREN value_list RPAREN •
-
-    $default  reduce using rule 96 (function_call)
-
-
-State 95
-
-   36 value_list: value_list COMMA • expression
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 125
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 96
-
-   11 select_statement: SELECT DISTINCT select_column_list FROM table_reference • optional_join_clause_list where_clause order_by_clause
-
-    JOIN   shift, and go to state 105
-    INNER  shift, and go to state 106
-    LEFT   shift, and go to state 107
-    RIGHT  shift, and go to state 108
-
-    $default  reduce using rule 20 (optional_join_clause_list)
-
-    optional_join_clause_list  go to state 126
-    join_clause_list           go to state 110
-    join_clause                go to state 111
-    join_type                  go to state 112
-
-
-State 97
-
-   97 function_call: COUNT LPAREN MULTIPLY RPAREN •
-
-    $default  reduce using rule 97 (function_call)
-
-
-State 98
-
-   98 function_call: COUNT LPAREN expression RPAREN •
-
-    $default  reduce using rule 98 (function_call)
-
-
-State 99
-
-   99 function_call: SUM LPAREN expression RPAREN •
+   99 function_call: IDENTIFIER LPAREN RPAREN •
 
     $default  reduce using rule 99 (function_call)
 
 
+State 74
+
+   38 value_list: value_list • COMMA expression
+  100 function_call: IDENTIFIER LPAREN value_list • RPAREN
+
+    RPAREN  shift, and go to state 100
+    COMMA   shift, and go to state 101
+
+
+State 75
+
+   39 value_list: expression •
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 39 (value_list)
+
+
+State 76
+
+   98 column_reference: IDENTIFIER DOT IDENTIFIER •
+
+    $default  reduce using rule 98 (column_reference)
+
+
+State 77
+
+   13 select_statement: SELECT DISTINCT select_column_list FROM • table_reference optional_join_clause_list where_clause order_by_clause
+
+    IDENTIFIER  shift, and go to state 85
+
+    table_reference  go to state 102
+
+
+State 78
+
+   79 expression: LPAREN expression RPAREN •
+
+    $default  reduce using rule 79 (expression)
+
+
+State 79
+
+  101 function_call: COUNT LPAREN MULTIPLY • RPAREN
+
+    RPAREN  shift, and go to state 103
+
+
+State 80
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+  102 function_call: COUNT LPAREN expression • RPAREN
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+    RPAREN    shift, and go to state 104
+
+
+State 81
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+  103 function_call: SUM LPAREN expression • RPAREN
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+    RPAREN    shift, and go to state 105
+
+
+State 82
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+  104 function_call: AVG LPAREN expression • RPAREN
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+    RPAREN    shift, and go to state 106
+
+
+State 83
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+  105 function_call: MIN LPAREN expression • RPAREN
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+    RPAREN    shift, and go to state 107
+
+
+State 84
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+  106 function_call: MAX LPAREN expression • RPAREN
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+    RPAREN    shift, and go to state 108
+
+
+State 85
+
+   18 table_reference: IDENTIFIER •
+   19                | IDENTIFIER • AS IDENTIFIER
+   20                | IDENTIFIER • IDENTIFIER
+
+    IDENTIFIER  shift, and go to state 109
+    AS          shift, and go to state 110
+
+    $default  reduce using rule 18 (table_reference)
+
+
+State 86
+
+   12 select_statement: SELECT select_column_list FROM table_reference • optional_join_clause_list where_clause order_by_clause
+
+    JOIN   shift, and go to state 111
+    INNER  shift, and go to state 112
+    LEFT   shift, and go to state 113
+    RIGHT  shift, and go to state 114
+
+    $default  reduce using rule 22 (optional_join_clause_list)
+
+    optional_join_clause_list  go to state 115
+    join_clause_list           go to state 116
+    join_clause                go to state 117
+    join_type                  go to state 118
+
+
+State 87
+
+   16 column_list: column_list COMMA expression •
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 16 (column_list)
+
+
+State 88
+
+   74 expression: expression • PLUS expression
+   74           | expression PLUS expression •
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 74 (expression)
+
+
+State 89
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   75           | expression MINUS expression •
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 75 (expression)
+
+
+State 90
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   76           | expression MULTIPLY expression •
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+
+    $default  reduce using rule 76 (expression)
+
+
+State 91
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   77           | expression DIVIDE expression •
+   78           | expression • MODULO expression
+
+    $default  reduce using rule 77 (expression)
+
+
+State 92
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+   78           | expression MODULO expression •
+
+    $default  reduce using rule 78 (expression)
+
+
+State 93
+
+   37 insert_statement: INSERT INTO IDENTIFIER VALUES • LPAREN value_list RPAREN
+
+    LPAREN  shift, and go to state 119
+
+
+State 94
+
+   36 insert_statement: INSERT INTO IDENTIFIER LPAREN • column_list RPAREN VALUES LPAREN value_list RPAREN
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    column_list       go to state 120
+    expression        go to state 37
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 95
+
+   42 update_column_list: IDENTIFIER • EQUAL expression
+
+    EQUAL  shift, and go to state 121
+
+
+State 96
+
+   40 update_statement: UPDATE IDENTIFIER SET update_column_list • where_clause
+   41 update_column_list: update_column_list • COMMA IDENTIFIER EQUAL expression
+
+    WHERE  shift, and go to state 97
+    COMMA  shift, and go to state 122
+
+    $default  reduce using rule 33 (where_clause)
+
+    where_clause  go to state 123
+
+
+State 97
+
+   32 where_clause: WHERE • condition
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NOT              shift, and go to state 124
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 125
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 126
+    condition         go to state 127
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 98
+
+   43 delete_statement: DELETE FROM IDENTIFIER where_clause •
+
+    $default  reduce using rule 43 (delete_statement)
+
+
+State 99
+
+   44 create_table_statement: CREATE TABLE IDENTIFIER LPAREN • column_definition_list RPAREN
+
+    IDENTIFIER  shift, and go to state 128
+
+    column_definition_list  go to state 129
+    column_definition       go to state 130
+
+
 State 100
 
-  100 function_call: AVG LPAREN expression RPAREN •
+  100 function_call: IDENTIFIER LPAREN value_list RPAREN •
 
     $default  reduce using rule 100 (function_call)
 
 
 State 101
 
-  101 function_call: MIN LPAREN expression RPAREN •
+   38 value_list: value_list COMMA • expression
 
-    $default  reduce using rule 101 (function_call)
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 131
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 102
 
-  102 function_call: MAX LPAREN expression RPAREN •
+   13 select_statement: SELECT DISTINCT select_column_list FROM table_reference • optional_join_clause_list where_clause order_by_clause
 
-    $default  reduce using rule 102 (function_call)
+    JOIN   shift, and go to state 111
+    INNER  shift, and go to state 112
+    LEFT   shift, and go to state 113
+    RIGHT  shift, and go to state 114
+
+    $default  reduce using rule 22 (optional_join_clause_list)
+
+    optional_join_clause_list  go to state 132
+    join_clause_list           go to state 116
+    join_clause                go to state 117
+    join_type                  go to state 118
 
 
 State 103
 
-   18 table_reference: IDENTIFIER IDENTIFIER •
+  101 function_call: COUNT LPAREN MULTIPLY RPAREN •
 
-    $default  reduce using rule 18 (table_reference)
+    $default  reduce using rule 101 (function_call)
 
 
 State 104
 
-   17 table_reference: IDENTIFIER AS • IDENTIFIER
+  102 function_call: COUNT LPAREN expression RPAREN •
 
-    IDENTIFIER  shift, and go to state 127
+    $default  reduce using rule 102 (function_call)
 
 
 State 105
 
-   24 join_clause: JOIN • table_reference ON condition
+  103 function_call: SUM LPAREN expression RPAREN •
 
-    IDENTIFIER  shift, and go to state 79
-
-    table_reference  go to state 128
+    $default  reduce using rule 103 (function_call)
 
 
 State 106
 
-   25 join_type: INNER •
+  104 function_call: AVG LPAREN expression RPAREN •
 
-    $default  reduce using rule 25 (join_type)
+    $default  reduce using rule 104 (function_call)
 
 
 State 107
 
-   26 join_type: LEFT •
-   28          | LEFT • OUTER
+  105 function_call: MIN LPAREN expression RPAREN •
 
-    OUTER  shift, and go to state 129
-
-    $default  reduce using rule 26 (join_type)
+    $default  reduce using rule 105 (function_call)
 
 
 State 108
 
-   27 join_type: RIGHT •
-   29          | RIGHT • OUTER
+  106 function_call: MAX LPAREN expression RPAREN •
 
-    OUTER  shift, and go to state 130
-
-    $default  reduce using rule 27 (join_type)
+    $default  reduce using rule 106 (function_call)
 
 
 State 109
 
-   10 select_statement: SELECT select_column_list FROM table_reference optional_join_clause_list • where_clause order_by_clause
+   20 table_reference: IDENTIFIER IDENTIFIER •
 
-    WHERE  shift, and go to state 91
-
-    $default  reduce using rule 31 (where_clause)
-
-    where_clause  go to state 131
+    $default  reduce using rule 20 (table_reference)
 
 
 State 110
 
-   19 optional_join_clause_list: join_clause_list •
-   21 join_clause_list: join_clause_list • join_clause
+   19 table_reference: IDENTIFIER AS • IDENTIFIER
 
-    JOIN   shift, and go to state 105
-    INNER  shift, and go to state 106
-    LEFT   shift, and go to state 107
-    RIGHT  shift, and go to state 108
-
-    $default  reduce using rule 19 (optional_join_clause_list)
-
-    join_clause  go to state 132
-    join_type    go to state 112
+    IDENTIFIER  shift, and go to state 133
 
 
 State 111
 
-   22 join_clause_list: join_clause •
+   26 join_clause: JOIN • table_reference ON condition
 
-    $default  reduce using rule 22 (join_clause_list)
+    IDENTIFIER  shift, and go to state 85
+
+    table_reference  go to state 134
 
 
 State 112
 
-   23 join_clause: join_type • JOIN table_reference ON condition
+   27 join_type: INNER •
 
-    JOIN  shift, and go to state 133
+    $default  reduce using rule 27 (join_type)
 
 
 State 113
 
-   35 insert_statement: INSERT INTO IDENTIFIER VALUES LPAREN • value_list RPAREN
+   28 join_type: LEFT •
+   30          | LEFT • OUTER
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    value_list        go to state 134
-    expression        go to state 69
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 114
-
-   14 column_list: column_list • COMMA expression
-   34 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list • RPAREN VALUES LPAREN value_list RPAREN
-
-    RPAREN  shift, and go to state 135
-    COMMA   shift, and go to state 55
-
-
-State 115
-
-   40 update_column_list: IDENTIFIER EQUAL • expression
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 136
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 116
-
-   39 update_column_list: update_column_list COMMA • IDENTIFIER EQUAL expression
-
-    IDENTIFIER  shift, and go to state 137
-
-
-State 117
-
-   38 update_statement: UPDATE IDENTIFIER SET update_column_list where_clause •
-
-    $default  reduce using rule 38 (update_statement)
-
-
-State 118
-
-   84 condition: NOT • condition
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NOT              shift, and go to state 118
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 119
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 120
-    condition         go to state 138
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 119
-
-   75 expression: LPAREN • expression RPAREN
-   85 condition: LPAREN • condition RPAREN
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NOT              shift, and go to state 118
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 119
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 139
-    condition         go to state 140
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 120
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   76 condition: expression • EQUAL expression
-   77          | expression • NOT_EQUAL expression
-   78          | expression • LESS_THAN expression
-   79          | expression • GREATER_THAN expression
-   80          | expression • LESS_EQUAL expression
-   81          | expression • GREATER_EQUAL expression
-   86          | expression •
-
-    EQUAL          shift, and go to state 141
-    NOT_EQUAL      shift, and go to state 142
-    LESS_THAN      shift, and go to state 143
-    GREATER_THAN   shift, and go to state 144
-    LESS_EQUAL     shift, and go to state 145
-    GREATER_EQUAL  shift, and go to state 146
-    PLUS           shift, and go to state 56
-    MINUS          shift, and go to state 57
-    MULTIPLY       shift, and go to state 58
-    DIVIDE         shift, and go to state 59
-    MODULO         shift, and go to state 60
-
-    $default  reduce using rule 86 (condition)
-
-
-State 121
-
-   30 where_clause: WHERE condition •
-   82 condition: condition • AND condition
-   83          | condition • OR condition
-
-    AND  shift, and go to state 147
-    OR   shift, and go to state 148
-
-    $default  reduce using rule 30 (where_clause)
-
-
-State 122
-
-   45 column_definition: IDENTIFIER • data_type
-   46                  | IDENTIFIER • data_type LPAREN INTEGER_LITERAL RPAREN
-   47                  | IDENTIFIER • data_type PRIMARY KEY
-   48                  | IDENTIFIER • data_type NOT NULL_TOK
-   49                  | IDENTIFIER • data_type UNIQUE
-   50                  | IDENTIFIER • data_type AUTO_INCREMENT
-   51                  | IDENTIFIER • VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN NOT NULL_TOK
-   52                  | IDENTIFIER • VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN UNIQUE
-
-    INT_TYPE        shift, and go to state 149
-    INTEGER_TYPE    shift, and go to state 150
-    VARCHAR_TYPE    shift, and go to state 151
-    CHAR_TYPE       shift, and go to state 152
-    TEXT_TYPE       shift, and go to state 153
-    DECIMAL_TYPE    shift, and go to state 154
-    NUMERIC_TYPE    shift, and go to state 155
-    FLOAT_TYPE      shift, and go to state 156
-    REAL_TYPE       shift, and go to state 157
-    DATE_TYPE       shift, and go to state 158
-    TIME_TYPE       shift, and go to state 159
-    TIMESTAMP_TYPE  shift, and go to state 160
-    BOOLEAN_TYPE    shift, and go to state 161
-
-    data_type  go to state 162
-
-
-State 123
-
-   42 create_table_statement: CREATE TABLE IDENTIFIER LPAREN column_definition_list • RPAREN
-   43 column_definition_list: column_definition_list • COMMA column_definition
-
-    RPAREN  shift, and go to state 163
-    COMMA   shift, and go to state 164
-
-
-State 124
-
-   44 column_definition_list: column_definition •
-
-    $default  reduce using rule 44 (column_definition_list)
-
-
-State 125
-
-   36 value_list: value_list COMMA expression •
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 36 (value_list)
-
-
-State 126
-
-   11 select_statement: SELECT DISTINCT select_column_list FROM table_reference optional_join_clause_list • where_clause order_by_clause
-
-    WHERE  shift, and go to state 91
-
-    $default  reduce using rule 31 (where_clause)
-
-    where_clause  go to state 165
-
-
-State 127
-
-   17 table_reference: IDENTIFIER AS IDENTIFIER •
-
-    $default  reduce using rule 17 (table_reference)
-
-
-State 128
-
-   24 join_clause: JOIN table_reference • ON condition
-
-    ON  shift, and go to state 166
-
-
-State 129
-
-   28 join_type: LEFT OUTER •
+    OUTER  shift, and go to state 135
 
     $default  reduce using rule 28 (join_type)
 
 
-State 130
+State 114
 
-   29 join_type: RIGHT OUTER •
+   29 join_type: RIGHT •
+   31          | RIGHT • OUTER
+
+    OUTER  shift, and go to state 136
 
     $default  reduce using rule 29 (join_type)
 
 
+State 115
+
+   12 select_statement: SELECT select_column_list FROM table_reference optional_join_clause_list • where_clause order_by_clause
+
+    WHERE  shift, and go to state 97
+
+    $default  reduce using rule 33 (where_clause)
+
+    where_clause  go to state 137
+
+
+State 116
+
+   21 optional_join_clause_list: join_clause_list •
+   23 join_clause_list: join_clause_list • join_clause
+
+    JOIN   shift, and go to state 111
+    INNER  shift, and go to state 112
+    LEFT   shift, and go to state 113
+    RIGHT  shift, and go to state 114
+
+    $default  reduce using rule 21 (optional_join_clause_list)
+
+    join_clause  go to state 138
+    join_type    go to state 118
+
+
+State 117
+
+   24 join_clause_list: join_clause •
+
+    $default  reduce using rule 24 (join_clause_list)
+
+
+State 118
+
+   25 join_clause: join_type • JOIN table_reference ON condition
+
+    JOIN  shift, and go to state 139
+
+
+State 119
+
+   37 insert_statement: INSERT INTO IDENTIFIER VALUES LPAREN • value_list RPAREN
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    value_list        go to state 140
+    expression        go to state 75
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 120
+
+   16 column_list: column_list • COMMA expression
+   36 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list • RPAREN VALUES LPAREN value_list RPAREN
+
+    RPAREN  shift, and go to state 141
+    COMMA   shift, and go to state 61
+
+
+State 121
+
+   42 update_column_list: IDENTIFIER EQUAL • expression
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 142
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 122
+
+   41 update_column_list: update_column_list COMMA • IDENTIFIER EQUAL expression
+
+    IDENTIFIER  shift, and go to state 143
+
+
+State 123
+
+   40 update_statement: UPDATE IDENTIFIER SET update_column_list where_clause •
+
+    $default  reduce using rule 40 (update_statement)
+
+
+State 124
+
+   88 condition: NOT • condition
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NOT              shift, and go to state 124
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 125
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 126
+    condition         go to state 144
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 125
+
+   79 expression: LPAREN • expression RPAREN
+   89 condition: LPAREN • condition RPAREN
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NOT              shift, and go to state 124
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 125
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 145
+    condition         go to state 146
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 126
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+   80 condition: expression • EQUAL expression
+   81          | expression • NOT_EQUAL expression
+   82          | expression • LESS_THAN expression
+   83          | expression • GREATER_THAN expression
+   84          | expression • LESS_EQUAL expression
+   85          | expression • GREATER_EQUAL expression
+   90          | expression •
+
+    EQUAL          shift, and go to state 147
+    NOT_EQUAL      shift, and go to state 148
+    LESS_THAN      shift, and go to state 149
+    GREATER_THAN   shift, and go to state 150
+    LESS_EQUAL     shift, and go to state 151
+    GREATER_EQUAL  shift, and go to state 152
+    PLUS           shift, and go to state 62
+    MINUS          shift, and go to state 63
+    MULTIPLY       shift, and go to state 64
+    DIVIDE         shift, and go to state 65
+    MODULO         shift, and go to state 66
+
+    $default  reduce using rule 90 (condition)
+
+
+State 127
+
+   32 where_clause: WHERE condition •
+   86 condition: condition • AND condition
+   87          | condition • OR condition
+
+    AND  shift, and go to state 153
+    OR   shift, and go to state 154
+
+    $default  reduce using rule 32 (where_clause)
+
+
+State 128
+
+   47 column_definition: IDENTIFIER • data_type
+   48                  | IDENTIFIER • data_type LPAREN INTEGER_LITERAL RPAREN
+   49                  | IDENTIFIER • data_type PRIMARY KEY
+   50                  | IDENTIFIER • data_type NOT NULL_TOK
+   51                  | IDENTIFIER • data_type UNIQUE
+   52                  | IDENTIFIER • data_type AUTO_INCREMENT
+   53                  | IDENTIFIER • VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN NOT NULL_TOK
+   54                  | IDENTIFIER • VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN UNIQUE
+
+    INT_TYPE        shift, and go to state 155
+    INTEGER_TYPE    shift, and go to state 156
+    VARCHAR_TYPE    shift, and go to state 157
+    CHAR_TYPE       shift, and go to state 158
+    TEXT_TYPE       shift, and go to state 159
+    DECIMAL_TYPE    shift, and go to state 160
+    NUMERIC_TYPE    shift, and go to state 161
+    FLOAT_TYPE      shift, and go to state 162
+    REAL_TYPE       shift, and go to state 163
+    DATE_TYPE       shift, and go to state 164
+    TIME_TYPE       shift, and go to state 165
+    TIMESTAMP_TYPE  shift, and go to state 166
+    BOOLEAN_TYPE    shift, and go to state 167
+
+    data_type  go to state 168
+
+
+State 129
+
+   44 create_table_statement: CREATE TABLE IDENTIFIER LPAREN column_definition_list • RPAREN
+   45 column_definition_list: column_definition_list • COMMA column_definition
+
+    RPAREN  shift, and go to state 169
+    COMMA   shift, and go to state 170
+
+
+State 130
+
+   46 column_definition_list: column_definition •
+
+    $default  reduce using rule 46 (column_definition_list)
+
+
 State 131
 
-   10 select_statement: SELECT select_column_list FROM table_reference optional_join_clause_list where_clause • order_by_clause
+   38 value_list: value_list COMMA expression •
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
 
-    ORDER  shift, and go to state 167
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
 
-    $default  reduce using rule 33 (order_by_clause)
-
-    order_by_clause  go to state 168
+    $default  reduce using rule 38 (value_list)
 
 
 State 132
 
-   21 join_clause_list: join_clause_list join_clause •
+   13 select_statement: SELECT DISTINCT select_column_list FROM table_reference optional_join_clause_list • where_clause order_by_clause
 
-    $default  reduce using rule 21 (join_clause_list)
+    WHERE  shift, and go to state 97
+
+    $default  reduce using rule 33 (where_clause)
+
+    where_clause  go to state 171
 
 
 State 133
 
-   23 join_clause: join_type JOIN • table_reference ON condition
+   19 table_reference: IDENTIFIER AS IDENTIFIER •
 
-    IDENTIFIER  shift, and go to state 79
-
-    table_reference  go to state 169
+    $default  reduce using rule 19 (table_reference)
 
 
 State 134
 
-   35 insert_statement: INSERT INTO IDENTIFIER VALUES LPAREN value_list • RPAREN
-   36 value_list: value_list • COMMA expression
+   26 join_clause: JOIN table_reference • ON condition
 
-    RPAREN  shift, and go to state 170
-    COMMA   shift, and go to state 95
+    ON  shift, and go to state 172
 
 
 State 135
 
-   34 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN • VALUES LPAREN value_list RPAREN
+   30 join_type: LEFT OUTER •
 
-    VALUES  shift, and go to state 171
+    $default  reduce using rule 30 (join_type)
 
 
 State 136
 
-   40 update_column_list: IDENTIFIER EQUAL expression •
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
+   31 join_type: RIGHT OUTER •
 
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 40 (update_column_list)
+    $default  reduce using rule 31 (join_type)
 
 
 State 137
 
-   39 update_column_list: update_column_list COMMA IDENTIFIER • EQUAL expression
+   12 select_statement: SELECT select_column_list FROM table_reference optional_join_clause_list where_clause • order_by_clause
 
-    EQUAL  shift, and go to state 172
+    ORDER  shift, and go to state 173
+
+    $default  reduce using rule 35 (order_by_clause)
+
+    order_by_clause  go to state 174
 
 
 State 138
 
-   82 condition: condition • AND condition
-   83          | condition • OR condition
-   84          | NOT condition •
+   23 join_clause_list: join_clause_list join_clause •
 
-    $default  reduce using rule 84 (condition)
+    $default  reduce using rule 23 (join_clause_list)
 
 
 State 139
 
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   75           | LPAREN expression • RPAREN
-   76 condition: expression • EQUAL expression
-   77          | expression • NOT_EQUAL expression
-   78          | expression • LESS_THAN expression
-   79          | expression • GREATER_THAN expression
-   80          | expression • LESS_EQUAL expression
-   81          | expression • GREATER_EQUAL expression
-   86          | expression •
+   25 join_clause: join_type JOIN • table_reference ON condition
 
-    EQUAL          shift, and go to state 141
-    NOT_EQUAL      shift, and go to state 142
-    LESS_THAN      shift, and go to state 143
-    GREATER_THAN   shift, and go to state 144
-    LESS_EQUAL     shift, and go to state 145
-    GREATER_EQUAL  shift, and go to state 146
-    PLUS           shift, and go to state 56
-    MINUS          shift, and go to state 57
-    MULTIPLY       shift, and go to state 58
-    DIVIDE         shift, and go to state 59
-    MODULO         shift, and go to state 60
-    RPAREN         shift, and go to state 72
+    IDENTIFIER  shift, and go to state 85
 
-    RPAREN    [reduce using rule 86 (condition)]
-    $default  reduce using rule 86 (condition)
+    table_reference  go to state 175
 
 
 State 140
 
-   82 condition: condition • AND condition
-   83          | condition • OR condition
-   85          | LPAREN condition • RPAREN
+   37 insert_statement: INSERT INTO IDENTIFIER VALUES LPAREN value_list • RPAREN
+   38 value_list: value_list • COMMA expression
 
-    AND     shift, and go to state 147
-    OR      shift, and go to state 148
-    RPAREN  shift, and go to state 173
+    RPAREN  shift, and go to state 176
+    COMMA   shift, and go to state 101
 
 
 State 141
 
-   76 condition: expression EQUAL • expression
+   36 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN • VALUES LPAREN value_list RPAREN
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 174
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    VALUES  shift, and go to state 177
 
 
 State 142
 
-   77 condition: expression NOT_EQUAL • expression
+   42 update_column_list: IDENTIFIER EQUAL expression •
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
 
-    expression        go to state 175
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    $default  reduce using rule 42 (update_column_list)
 
 
 State 143
 
-   78 condition: expression LESS_THAN • expression
+   41 update_column_list: update_column_list COMMA IDENTIFIER • EQUAL expression
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 176
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    EQUAL  shift, and go to state 178
 
 
 State 144
 
-   79 condition: expression GREATER_THAN • expression
+   86 condition: condition • AND condition
+   87          | condition • OR condition
+   88          | NOT condition •
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 177
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    $default  reduce using rule 88 (condition)
 
 
 State 145
 
-   80 condition: expression LESS_EQUAL • expression
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+   79           | LPAREN expression • RPAREN
+   80 condition: expression • EQUAL expression
+   81          | expression • NOT_EQUAL expression
+   82          | expression • LESS_THAN expression
+   83          | expression • GREATER_THAN expression
+   84          | expression • LESS_EQUAL expression
+   85          | expression • GREATER_EQUAL expression
+   90          | expression •
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    EQUAL          shift, and go to state 147
+    NOT_EQUAL      shift, and go to state 148
+    LESS_THAN      shift, and go to state 149
+    GREATER_THAN   shift, and go to state 150
+    LESS_EQUAL     shift, and go to state 151
+    GREATER_EQUAL  shift, and go to state 152
+    PLUS           shift, and go to state 62
+    MINUS          shift, and go to state 63
+    MULTIPLY       shift, and go to state 64
+    DIVIDE         shift, and go to state 65
+    MODULO         shift, and go to state 66
+    RPAREN         shift, and go to state 78
 
-    expression        go to state 178
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    RPAREN    [reduce using rule 90 (condition)]
+    $default  reduce using rule 90 (condition)
 
 
 State 146
 
-   81 condition: expression GREATER_EQUAL • expression
+   86 condition: condition • AND condition
+   87          | condition • OR condition
+   89          | LPAREN condition • RPAREN
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 179
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    AND     shift, and go to state 153
+    OR      shift, and go to state 154
+    RPAREN  shift, and go to state 179
 
 
 State 147
 
-   82 condition: condition AND • condition
+   80 condition: expression EQUAL • expression
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NOT              shift, and go to state 118
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 119
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    expression        go to state 120
-    condition         go to state 180
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    expression        go to state 180
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 148
 
-   83 condition: condition OR • condition
+   81 condition: expression NOT_EQUAL • expression
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NOT              shift, and go to state 118
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 119
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    expression        go to state 120
-    condition         go to state 181
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    expression        go to state 181
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 149
 
-   53 data_type: INT_TYPE •
+   82 condition: expression LESS_THAN • expression
 
-    $default  reduce using rule 53 (data_type)
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 182
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 150
 
-   54 data_type: INTEGER_TYPE •
+   83 condition: expression GREATER_THAN • expression
 
-    $default  reduce using rule 54 (data_type)
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 183
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 151
 
-   51 column_definition: IDENTIFIER VARCHAR_TYPE • LPAREN INTEGER_LITERAL RPAREN NOT NULL_TOK
-   52                  | IDENTIFIER VARCHAR_TYPE • LPAREN INTEGER_LITERAL RPAREN UNIQUE
-   55 data_type: VARCHAR_TYPE •
+   84 condition: expression LESS_EQUAL • expression
 
-    LPAREN  shift, and go to state 182
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
 
-    LPAREN    [reduce using rule 55 (data_type)]
-    $default  reduce using rule 55 (data_type)
+    expression        go to state 184
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 152
 
-   56 data_type: CHAR_TYPE •
+   85 condition: expression GREATER_EQUAL • expression
 
-    $default  reduce using rule 56 (data_type)
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 185
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 153
 
-   57 data_type: TEXT_TYPE •
+   86 condition: condition AND • condition
 
-    $default  reduce using rule 57 (data_type)
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NOT              shift, and go to state 124
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 125
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 126
+    condition         go to state 186
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 154
 
-   58 data_type: DECIMAL_TYPE •
+   87 condition: condition OR • condition
 
-    $default  reduce using rule 58 (data_type)
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NOT              shift, and go to state 124
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 125
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 126
+    condition         go to state 187
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
 State 155
 
-   59 data_type: NUMERIC_TYPE •
+   55 data_type: INT_TYPE •
 
-    $default  reduce using rule 59 (data_type)
+    $default  reduce using rule 55 (data_type)
 
 
 State 156
 
-   60 data_type: FLOAT_TYPE •
+   56 data_type: INTEGER_TYPE •
 
-    $default  reduce using rule 60 (data_type)
+    $default  reduce using rule 56 (data_type)
 
 
 State 157
 
-   61 data_type: REAL_TYPE •
+   53 column_definition: IDENTIFIER VARCHAR_TYPE • LPAREN INTEGER_LITERAL RPAREN NOT NULL_TOK
+   54                  | IDENTIFIER VARCHAR_TYPE • LPAREN INTEGER_LITERAL RPAREN UNIQUE
+   57 data_type: VARCHAR_TYPE •
 
-    $default  reduce using rule 61 (data_type)
+    LPAREN  shift, and go to state 188
+
+    LPAREN    [reduce using rule 57 (data_type)]
+    $default  reduce using rule 57 (data_type)
 
 
 State 158
 
-   62 data_type: DATE_TYPE •
+   58 data_type: CHAR_TYPE •
 
-    $default  reduce using rule 62 (data_type)
+    $default  reduce using rule 58 (data_type)
 
 
 State 159
 
-   63 data_type: TIME_TYPE •
+   59 data_type: TEXT_TYPE •
 
-    $default  reduce using rule 63 (data_type)
+    $default  reduce using rule 59 (data_type)
 
 
 State 160
 
-   64 data_type: TIMESTAMP_TYPE •
+   60 data_type: DECIMAL_TYPE •
 
-    $default  reduce using rule 64 (data_type)
+    $default  reduce using rule 60 (data_type)
 
 
 State 161
 
-   65 data_type: BOOLEAN_TYPE •
+   61 data_type: NUMERIC_TYPE •
 
-    $default  reduce using rule 65 (data_type)
+    $default  reduce using rule 61 (data_type)
 
 
 State 162
 
-   45 column_definition: IDENTIFIER data_type •
-   46                  | IDENTIFIER data_type • LPAREN INTEGER_LITERAL RPAREN
-   47                  | IDENTIFIER data_type • PRIMARY KEY
-   48                  | IDENTIFIER data_type • NOT NULL_TOK
-   49                  | IDENTIFIER data_type • UNIQUE
-   50                  | IDENTIFIER data_type • AUTO_INCREMENT
+   62 data_type: FLOAT_TYPE •
 
-    NOT             shift, and go to state 183
-    PRIMARY         shift, and go to state 184
-    UNIQUE          shift, and go to state 185
-    AUTO_INCREMENT  shift, and go to state 186
-    LPAREN          shift, and go to state 187
-
-    $default  reduce using rule 45 (column_definition)
+    $default  reduce using rule 62 (data_type)
 
 
 State 163
 
-   42 create_table_statement: CREATE TABLE IDENTIFIER LPAREN column_definition_list RPAREN •
+   63 data_type: REAL_TYPE •
 
-    $default  reduce using rule 42 (create_table_statement)
+    $default  reduce using rule 63 (data_type)
 
 
 State 164
 
-   43 column_definition_list: column_definition_list COMMA • column_definition
+   64 data_type: DATE_TYPE •
 
-    IDENTIFIER  shift, and go to state 122
-
-    column_definition  go to state 188
+    $default  reduce using rule 64 (data_type)
 
 
 State 165
 
-   11 select_statement: SELECT DISTINCT select_column_list FROM table_reference optional_join_clause_list where_clause • order_by_clause
+   65 data_type: TIME_TYPE •
 
-    ORDER  shift, and go to state 167
-
-    $default  reduce using rule 33 (order_by_clause)
-
-    order_by_clause  go to state 189
+    $default  reduce using rule 65 (data_type)
 
 
 State 166
 
-   24 join_clause: JOIN table_reference ON • condition
+   66 data_type: TIMESTAMP_TYPE •
 
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NOT              shift, and go to state 118
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 119
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 120
-    condition         go to state 190
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
+    $default  reduce using rule 66 (data_type)
 
 
 State 167
 
-   32 order_by_clause: ORDER • BY column_list
+   67 data_type: BOOLEAN_TYPE •
 
-    BY  shift, and go to state 191
+    $default  reduce using rule 67 (data_type)
 
 
 State 168
 
-   10 select_statement: SELECT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause •
-
-    $default  reduce using rule 10 (select_statement)
-
-
-State 169
-
-   23 join_clause: join_type JOIN table_reference • ON condition
-
-    ON  shift, and go to state 192
-
-
-State 170
-
-   35 insert_statement: INSERT INTO IDENTIFIER VALUES LPAREN value_list RPAREN •
-
-    $default  reduce using rule 35 (insert_statement)
-
-
-State 171
-
-   34 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES • LPAREN value_list RPAREN
-
-    LPAREN  shift, and go to state 193
-
-
-State 172
-
-   39 update_column_list: update_column_list COMMA IDENTIFIER EQUAL • expression
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 194
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 173
-
-   85 condition: LPAREN condition RPAREN •
-
-    $default  reduce using rule 85 (condition)
-
-
-State 174
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   76 condition: expression EQUAL expression •
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 76 (condition)
-
-
-State 175
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   77 condition: expression NOT_EQUAL expression •
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 77 (condition)
-
-
-State 176
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   78 condition: expression LESS_THAN expression •
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 78 (condition)
-
-
-State 177
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   79 condition: expression GREATER_THAN expression •
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 79 (condition)
-
-
-State 178
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   80 condition: expression LESS_EQUAL expression •
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 80 (condition)
-
-
-State 179
-
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-   81 condition: expression GREATER_EQUAL expression •
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 81 (condition)
-
-
-State 180
-
-   82 condition: condition • AND condition
-   82          | condition AND condition •
-   83          | condition • OR condition
-
-    $default  reduce using rule 82 (condition)
-
-
-State 181
-
-   82 condition: condition • AND condition
-   83          | condition • OR condition
-   83          | condition OR condition •
-
-    AND  shift, and go to state 147
-
-    $default  reduce using rule 83 (condition)
-
-
-State 182
-
-   51 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN • INTEGER_LITERAL RPAREN NOT NULL_TOK
-   52                  | IDENTIFIER VARCHAR_TYPE LPAREN • INTEGER_LITERAL RPAREN UNIQUE
-
-    INTEGER_LITERAL  shift, and go to state 195
-
-
-State 183
-
-   48 column_definition: IDENTIFIER data_type NOT • NULL_TOK
-
-    NULL_TOK  shift, and go to state 196
-
-
-State 184
-
-   47 column_definition: IDENTIFIER data_type PRIMARY • KEY
-
-    KEY  shift, and go to state 197
-
-
-State 185
-
-   49 column_definition: IDENTIFIER data_type UNIQUE •
-
-    $default  reduce using rule 49 (column_definition)
-
-
-State 186
-
-   50 column_definition: IDENTIFIER data_type AUTO_INCREMENT •
-
-    $default  reduce using rule 50 (column_definition)
-
-
-State 187
-
-   46 column_definition: IDENTIFIER data_type LPAREN • INTEGER_LITERAL RPAREN
-
-    INTEGER_LITERAL  shift, and go to state 198
-
-
-State 188
-
-   43 column_definition_list: column_definition_list COMMA column_definition •
-
-    $default  reduce using rule 43 (column_definition_list)
-
-
-State 189
-
-   11 select_statement: SELECT DISTINCT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause •
-
-    $default  reduce using rule 11 (select_statement)
-
-
-State 190
-
-   24 join_clause: JOIN table_reference ON condition •
-   82 condition: condition • AND condition
-   83          | condition • OR condition
-
-    AND  shift, and go to state 147
-    OR   shift, and go to state 148
-
-    $default  reduce using rule 24 (join_clause)
-
-
-State 191
-
-   32 order_by_clause: ORDER BY • column_list
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    column_list       go to state 199
-    expression        go to state 33
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 192
-
-   23 join_clause: join_type JOIN table_reference ON • condition
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NOT              shift, and go to state 118
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 119
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    expression        go to state 120
-    condition         go to state 200
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 193
-
-   34 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN • value_list RPAREN
-
-    IDENTIFIER       shift, and go to state 16
-    STRING_LITERAL   shift, and go to state 17
-    INTEGER_LITERAL  shift, and go to state 18
-    DECIMAL_LITERAL  shift, and go to state 19
-    NULL_TOK         shift, and go to state 20
-    TRUE_TOK         shift, and go to state 21
-    FALSE_TOK        shift, and go to state 22
-    LPAREN           shift, and go to state 25
-    COUNT            shift, and go to state 26
-    SUM              shift, and go to state 27
-    AVG              shift, and go to state 28
-    MIN              shift, and go to state 29
-    MAX              shift, and go to state 30
-
-    value_list        go to state 201
-    expression        go to state 69
-    literal           go to state 34
-    column_reference  go to state 35
-    function_call     go to state 36
-
-
-State 194
-
-   39 update_column_list: update_column_list COMMA IDENTIFIER EQUAL expression •
-   70 expression: expression • PLUS expression
-   71           | expression • MINUS expression
-   72           | expression • MULTIPLY expression
-   73           | expression • DIVIDE expression
-   74           | expression • MODULO expression
-
-    PLUS      shift, and go to state 56
-    MINUS     shift, and go to state 57
-    MULTIPLY  shift, and go to state 58
-    DIVIDE    shift, and go to state 59
-    MODULO    shift, and go to state 60
-
-    $default  reduce using rule 39 (update_column_list)
-
-
-State 195
-
-   51 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL • RPAREN NOT NULL_TOK
-   52                  | IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL • RPAREN UNIQUE
-
-    RPAREN  shift, and go to state 202
-
-
-State 196
-
-   48 column_definition: IDENTIFIER data_type NOT NULL_TOK •
-
-    $default  reduce using rule 48 (column_definition)
-
-
-State 197
-
-   47 column_definition: IDENTIFIER data_type PRIMARY KEY •
+   47 column_definition: IDENTIFIER data_type •
+   48                  | IDENTIFIER data_type • LPAREN INTEGER_LITERAL RPAREN
+   49                  | IDENTIFIER data_type • PRIMARY KEY
+   50                  | IDENTIFIER data_type • NOT NULL_TOK
+   51                  | IDENTIFIER data_type • UNIQUE
+   52                  | IDENTIFIER data_type • AUTO_INCREMENT
+
+    NOT             shift, and go to state 189
+    PRIMARY         shift, and go to state 190
+    UNIQUE          shift, and go to state 191
+    AUTO_INCREMENT  shift, and go to state 192
+    LPAREN          shift, and go to state 193
 
     $default  reduce using rule 47 (column_definition)
 
 
-State 198
+State 169
 
-   46 column_definition: IDENTIFIER data_type LPAREN INTEGER_LITERAL • RPAREN
+   44 create_table_statement: CREATE TABLE IDENTIFIER LPAREN column_definition_list RPAREN •
 
-    RPAREN  shift, and go to state 203
-
-
-State 199
-
-   14 column_list: column_list • COMMA expression
-   32 order_by_clause: ORDER BY column_list •
-
-    COMMA  shift, and go to state 55
-
-    $default  reduce using rule 32 (order_by_clause)
+    $default  reduce using rule 44 (create_table_statement)
 
 
-State 200
+State 170
 
-   23 join_clause: join_type JOIN table_reference ON condition •
-   82 condition: condition • AND condition
-   83          | condition • OR condition
+   45 column_definition_list: column_definition_list COMMA • column_definition
 
-    AND  shift, and go to state 147
-    OR   shift, and go to state 148
+    IDENTIFIER  shift, and go to state 128
 
-    $default  reduce using rule 23 (join_clause)
+    column_definition  go to state 194
 
 
-State 201
+State 171
 
-   34 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list • RPAREN
-   36 value_list: value_list • COMMA expression
+   13 select_statement: SELECT DISTINCT select_column_list FROM table_reference optional_join_clause_list where_clause • order_by_clause
 
-    RPAREN  shift, and go to state 204
-    COMMA   shift, and go to state 95
+    ORDER  shift, and go to state 173
 
+    $default  reduce using rule 35 (order_by_clause)
 
-State 202
-
-   51 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN • NOT NULL_TOK
-   52                  | IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN • UNIQUE
-
-    NOT     shift, and go to state 205
-    UNIQUE  shift, and go to state 206
+    order_by_clause  go to state 195
 
 
-State 203
+State 172
 
-   46 column_definition: IDENTIFIER data_type LPAREN INTEGER_LITERAL RPAREN •
+   26 join_clause: JOIN table_reference ON • condition
 
-    $default  reduce using rule 46 (column_definition)
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NOT              shift, and go to state 124
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 125
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 126
+    condition         go to state 196
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
 
 
-State 204
+State 173
 
-   34 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN •
+   34 order_by_clause: ORDER • BY column_list
 
-    $default  reduce using rule 34 (insert_statement)
-
-
-State 205
-
-   51 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN NOT • NULL_TOK
-
-    NULL_TOK  shift, and go to state 207
+    BY  shift, and go to state 197
 
 
-State 206
+State 174
 
-   52 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN UNIQUE •
+   12 select_statement: SELECT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause •
+
+    $default  reduce using rule 12 (select_statement)
+
+
+State 175
+
+   25 join_clause: join_type JOIN table_reference • ON condition
+
+    ON  shift, and go to state 198
+
+
+State 176
+
+   37 insert_statement: INSERT INTO IDENTIFIER VALUES LPAREN value_list RPAREN •
+
+    $default  reduce using rule 37 (insert_statement)
+
+
+State 177
+
+   36 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES • LPAREN value_list RPAREN
+
+    LPAREN  shift, and go to state 199
+
+
+State 178
+
+   41 update_column_list: update_column_list COMMA IDENTIFIER EQUAL • expression
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 200
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 179
+
+   89 condition: LPAREN condition RPAREN •
+
+    $default  reduce using rule 89 (condition)
+
+
+State 180
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+   80 condition: expression EQUAL expression •
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 80 (condition)
+
+
+State 181
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+   81 condition: expression NOT_EQUAL expression •
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 81 (condition)
+
+
+State 182
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+   82 condition: expression LESS_THAN expression •
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 82 (condition)
+
+
+State 183
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+   83 condition: expression GREATER_THAN expression •
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 83 (condition)
+
+
+State 184
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+   84 condition: expression LESS_EQUAL expression •
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 84 (condition)
+
+
+State 185
+
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+   85 condition: expression GREATER_EQUAL expression •
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 85 (condition)
+
+
+State 186
+
+   86 condition: condition • AND condition
+   86          | condition AND condition •
+   87          | condition • OR condition
+
+    $default  reduce using rule 86 (condition)
+
+
+State 187
+
+   86 condition: condition • AND condition
+   87          | condition • OR condition
+   87          | condition OR condition •
+
+    AND  shift, and go to state 153
+
+    $default  reduce using rule 87 (condition)
+
+
+State 188
+
+   53 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN • INTEGER_LITERAL RPAREN NOT NULL_TOK
+   54                  | IDENTIFIER VARCHAR_TYPE LPAREN • INTEGER_LITERAL RPAREN UNIQUE
+
+    INTEGER_LITERAL  shift, and go to state 201
+
+
+State 189
+
+   50 column_definition: IDENTIFIER data_type NOT • NULL_TOK
+
+    NULL_TOK  shift, and go to state 202
+
+
+State 190
+
+   49 column_definition: IDENTIFIER data_type PRIMARY • KEY
+
+    KEY  shift, and go to state 203
+
+
+State 191
+
+   51 column_definition: IDENTIFIER data_type UNIQUE •
+
+    $default  reduce using rule 51 (column_definition)
+
+
+State 192
+
+   52 column_definition: IDENTIFIER data_type AUTO_INCREMENT •
 
     $default  reduce using rule 52 (column_definition)
 
 
+State 193
+
+   48 column_definition: IDENTIFIER data_type LPAREN • INTEGER_LITERAL RPAREN
+
+    INTEGER_LITERAL  shift, and go to state 204
+
+
+State 194
+
+   45 column_definition_list: column_definition_list COMMA column_definition •
+
+    $default  reduce using rule 45 (column_definition_list)
+
+
+State 195
+
+   13 select_statement: SELECT DISTINCT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause •
+
+    $default  reduce using rule 13 (select_statement)
+
+
+State 196
+
+   26 join_clause: JOIN table_reference ON condition •
+   86 condition: condition • AND condition
+   87          | condition • OR condition
+
+    AND  shift, and go to state 153
+    OR   shift, and go to state 154
+
+    $default  reduce using rule 26 (join_clause)
+
+
+State 197
+
+   34 order_by_clause: ORDER BY • column_list
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    column_list       go to state 205
+    expression        go to state 37
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 198
+
+   25 join_clause: join_type JOIN table_reference ON • condition
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NOT              shift, and go to state 124
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 125
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    expression        go to state 126
+    condition         go to state 206
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 199
+
+   36 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN • value_list RPAREN
+
+    IDENTIFIER       shift, and go to state 20
+    STRING_LITERAL   shift, and go to state 21
+    INTEGER_LITERAL  shift, and go to state 22
+    DECIMAL_LITERAL  shift, and go to state 23
+    NULL_TOK         shift, and go to state 24
+    TRUE_TOK         shift, and go to state 25
+    FALSE_TOK        shift, and go to state 26
+    LPAREN           shift, and go to state 29
+    COUNT            shift, and go to state 30
+    SUM              shift, and go to state 31
+    AVG              shift, and go to state 32
+    MIN              shift, and go to state 33
+    MAX              shift, and go to state 34
+
+    value_list        go to state 207
+    expression        go to state 75
+    literal           go to state 38
+    column_reference  go to state 39
+    function_call     go to state 40
+
+
+State 200
+
+   41 update_column_list: update_column_list COMMA IDENTIFIER EQUAL expression •
+   74 expression: expression • PLUS expression
+   75           | expression • MINUS expression
+   76           | expression • MULTIPLY expression
+   77           | expression • DIVIDE expression
+   78           | expression • MODULO expression
+
+    PLUS      shift, and go to state 62
+    MINUS     shift, and go to state 63
+    MULTIPLY  shift, and go to state 64
+    DIVIDE    shift, and go to state 65
+    MODULO    shift, and go to state 66
+
+    $default  reduce using rule 41 (update_column_list)
+
+
+State 201
+
+   53 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL • RPAREN NOT NULL_TOK
+   54                  | IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL • RPAREN UNIQUE
+
+    RPAREN  shift, and go to state 208
+
+
+State 202
+
+   50 column_definition: IDENTIFIER data_type NOT NULL_TOK •
+
+    $default  reduce using rule 50 (column_definition)
+
+
+State 203
+
+   49 column_definition: IDENTIFIER data_type PRIMARY KEY •
+
+    $default  reduce using rule 49 (column_definition)
+
+
+State 204
+
+   48 column_definition: IDENTIFIER data_type LPAREN INTEGER_LITERAL • RPAREN
+
+    RPAREN  shift, and go to state 209
+
+
+State 205
+
+   16 column_list: column_list • COMMA expression
+   34 order_by_clause: ORDER BY column_list •
+
+    COMMA  shift, and go to state 61
+
+    $default  reduce using rule 34 (order_by_clause)
+
+
+State 206
+
+   25 join_clause: join_type JOIN table_reference ON condition •
+   86 condition: condition • AND condition
+   87          | condition • OR condition
+
+    AND  shift, and go to state 153
+    OR   shift, and go to state 154
+
+    $default  reduce using rule 25 (join_clause)
+
+
 State 207
 
-   51 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN NOT NULL_TOK •
+   36 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list • RPAREN
+   38 value_list: value_list • COMMA expression
 
-    $default  reduce using rule 51 (column_definition)
+    RPAREN  shift, and go to state 210
+    COMMA   shift, and go to state 101
+
+
+State 208
+
+   53 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN • NOT NULL_TOK
+   54                  | IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN • UNIQUE
+
+    NOT     shift, and go to state 211
+    UNIQUE  shift, and go to state 212
+
+
+State 209
+
+   48 column_definition: IDENTIFIER data_type LPAREN INTEGER_LITERAL RPAREN •
+
+    $default  reduce using rule 48 (column_definition)
+
+
+State 210
+
+   36 insert_statement: INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN •
+
+    $default  reduce using rule 36 (insert_statement)
+
+
+State 211
+
+   53 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN NOT • NULL_TOK
+
+    NULL_TOK  shift, and go to state 213
+
+
+State 212
+
+   54 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN UNIQUE •
+
+    $default  reduce using rule 54 (column_definition)
+
+
+State 213
+
+   53 column_definition: IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN NOT NULL_TOK •
+
+    $default  reduce using rule 53 (column_definition)

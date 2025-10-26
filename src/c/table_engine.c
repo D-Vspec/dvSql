@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <errno.h>
+#include <dirent.h>
 
 /* Initialize table engine */
 table_result_t table_engine_init(void) {
@@ -638,4 +639,164 @@ void free_table_rows(char** rows, int row_count) {
         free(rows[i]);
     }
     free(rows);
+}
+
+/* Execute DESC statement */
+table_result_t execute_desc(ast_node_t* desc_stmt) {
+    if (!desc_stmt || desc_stmt->type != NODE_DESC_STMT) {
+        return TABLE_ERROR_INVALID_SCHEMA;
+    }
+    
+    char* table_name = desc_stmt->data.desc_stmt.table_name;
+    
+    /* Check if table exists */
+    if (!table_exists(table_name)) {
+        printf("Table '%s' does not exist.\n", table_name);
+        return TABLE_ERROR_TABLE_NOT_FOUND;
+    }
+    
+    /* Read schema file directly for detailed information */
+    char* schema_file = get_schema_filename(table_name);
+    if (!schema_file) {
+        return TABLE_ERROR_MEMORY;
+    }
+    
+    FILE* fp = fopen(schema_file, "r");
+    if (!fp) {
+        free(schema_file);
+        printf("Error: Could not read schema file for table '%s'.\n", table_name);
+        return TABLE_ERROR_FILE_IO;
+    }
+    
+    printf("\nTable: %s\n", table_name);
+    printf("========================\n");
+    printf("%-20s %-15s %-10s %-10s %-10s\n", 
+           "Column", "Type", "Null", "Key", "Extra");
+    printf("%-20s %-15s %-10s %-10s %-10s\n", 
+           "--------------------", "---------------", "----------", "----------", "----------");
+    
+    /* Parse JSON and display column information */
+    char line[512];
+    int in_columns = 0;
+    int column_count = 0;
+    
+    while (fgets(line, sizeof(line), fp)) {
+        /* Simple JSON parsing - look for column definitions */
+        if (strstr(line, "\"columns\":")) {
+            in_columns = 1;
+            continue;
+        }
+        
+        if (in_columns && strstr(line, "\"name\":")) {
+            char name[100] = "";
+            char type[50] = "";
+            char null_str[10] = "YES";
+            char key_str[10] = "";
+            char extra_str[20] = "";
+            
+            /* Extract column name */
+            char* name_start = strstr(line, "\"name\": \"");
+            if (name_start) {
+                name_start += 9;
+                char* name_end = strchr(name_start, '"');
+                if (name_end) {
+                    strncpy(name, name_start, name_end - name_start);
+                    name[name_end - name_start] = '\0';
+                }
+            }
+            
+            /* Read next few lines for type and constraints */
+            for (int i = 0; i < 6; i++) {
+                if (fgets(line, sizeof(line), fp)) {
+                    if (strstr(line, "\"type\":")) {
+                        char* type_start = strstr(line, "\"type\": \"");
+                        if (type_start) {
+                            type_start += 9;
+                            char* type_end = strchr(type_start, '"');
+                            if (type_end) {
+                                strncpy(type, type_start, type_end - type_start);
+                                type[type_end - type_start] = '\0';
+                            }
+                        }
+                    }
+                    if (strstr(line, "\"not_null\": true")) {
+                        strcpy(null_str, "NO");
+                    }
+                    if (strstr(line, "\"primary_key\": true")) {
+                        strcpy(key_str, "PRI");
+                    }
+                    if (strstr(line, "\"unique\": true") && strlen(key_str) == 0) {
+                        strcpy(key_str, "UNI");
+                    }
+                    if (strstr(line, "\"auto_increment\": true")) {
+                        strcpy(extra_str, "auto_increment");
+                    }
+                }
+            }
+            
+            /* Display column information */
+            printf("%-20s %-15s %-10s %-10s %-10s\n", 
+                   name, type, null_str, key_str, extra_str);
+            column_count++;
+        }
+        
+        /* Stop after closing columns array */
+        if (in_columns && strstr(line, "]")) {
+            break;
+        }
+    }
+    
+    printf("\n%d column(s) in table '%s'.\n", column_count, table_name);
+    
+    fclose(fp);
+    free(schema_file);
+    
+    return TABLE_SUCCESS;
+}
+
+/* Execute SHOW TABLES statement */
+table_result_t execute_show_tables(ast_node_t* show_tables_stmt) {
+    if (!show_tables_stmt || show_tables_stmt->type != NODE_SHOW_TABLES_STMT) {
+        return TABLE_ERROR_INVALID_SCHEMA;
+    }
+    
+    printf("\nTables:\n");
+    printf("=======\n");
+    
+    /* Read directory listing of schema files */
+    char schemas_path[] = SCHEMAS_DIR;
+    DIR* dir = opendir(schemas_path);
+    if (!dir) {
+        printf("Error: Could not open schemas directory.\n");
+        return TABLE_ERROR_FILE_IO;
+    }
+    
+    struct dirent* entry;
+    int table_count = 0;
+    
+    while ((entry = readdir(dir)) != NULL) {
+        /* Skip . and .. entries */
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        
+        /* Check if it's a .json file */
+        char* ext = strrchr(entry->d_name, '.');
+        if (ext && strcmp(ext, ".json") == 0) {
+            /* Remove .json extension for display */
+            *ext = '\0';
+            printf("%s\n", entry->d_name);
+            table_count++;
+        }
+    }
+    
+    closedir(dir);
+    
+    if (table_count == 0) {
+        printf("No tables found.\n");
+    } else {
+        printf("\n%d table(s) found.\n", table_count);
+    }
+    
+    return TABLE_SUCCESS;
 }

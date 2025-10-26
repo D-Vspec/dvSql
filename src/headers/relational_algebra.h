@@ -27,7 +27,9 @@ typedef enum {
     RA_DIFFERENCE,      /* - - Set difference */
     RA_RENAME,          /* ρ (rho) - Rename operation */
     RA_AGGREGATION,     /* γ - Aggregation (group by) */
-    RA_SORTING          /* τ - Sorting (order by) */
+    RA_SORTING,         /* τ - Sorting (order by) */
+    RA_DESC,            /* Meta operation - Describe table */
+    RA_SHOW_TABLES      /* Meta operation - Show tables */
 } ra_operator_type_t;
 
 /* Attribute structure for projections and renamings */
@@ -99,6 +101,16 @@ struct ra_node {
             ra_attribute_list_t* sort_attrs;
             ra_node_t* input;
         } sorting;
+        
+        /* Describe table (meta operation) */
+        struct {
+            char* table_name;
+        } desc;
+        
+        /* Show tables (meta operation) */
+        struct {
+            /* No additional data needed */
+        } show_tables;
     } data;
 };
 
@@ -117,6 +129,8 @@ ra_node_t* create_ra_difference(ra_node_t* left, ra_node_t* right);
 ra_node_t* create_ra_rename(const char* new_name, ra_attribute_list_t* attr_mappings, ra_node_t* input);
 ra_node_t* create_ra_aggregation(ra_attribute_list_t* group_by, ra_attribute_list_t* aggregates, ra_node_t* input);
 ra_node_t* create_ra_sorting(ra_attribute_list_t* sort_attrs, ra_node_t* input);
+ra_node_t* create_ra_desc(const char* table_name);
+ra_node_t* create_ra_show_tables(void);
 
 /* Helper functions for attributes and conditions */
 ra_attribute_t* create_ra_attribute(const char* name, const char* alias, const char* table_name);
@@ -131,6 +145,8 @@ ra_node_t* convert_select_stmt(ast_node_t* select_stmt);
 ra_node_t* convert_insert_stmt(ast_node_t* insert_stmt);
 ra_node_t* convert_update_stmt(ast_node_t* update_stmt);
 ra_node_t* convert_delete_stmt(ast_node_t* delete_stmt);
+ra_node_t* convert_desc_stmt(ast_node_t* desc_stmt);
+ra_node_t* convert_show_tables_stmt(ast_node_t* show_tables_stmt);
 
 /* Helper conversion functions */
 ra_attribute_list_t* convert_column_list_to_attributes(column_list_t* columns);

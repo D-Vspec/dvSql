@@ -44,6 +44,7 @@ ast_node_t* ast_root = NULL;
 %token AS ORDER BY GROUP HAVING LIMIT OFFSET
 %token JOIN INNER LEFT RIGHT OUTER ON USING DISTINCT ALL
 %token IN EXISTS BETWEEN LIKE IS UNION INTERSECT EXCEPT
+%token DESC SHOW TABLES
 
 %token INT_TYPE INTEGER_TYPE VARCHAR_TYPE CHAR_TYPE TEXT_TYPE
 %token DECIMAL_TYPE NUMERIC_TYPE FLOAT_TYPE REAL_TYPE
@@ -63,6 +64,7 @@ ast_node_t* ast_root = NULL;
 /* Type declarations for non-terminals */
 %type <ast_node> statement select_statement insert_statement update_statement
 %type <ast_node> delete_statement create_table_statement drop_table_statement
+%type <ast_node> desc_statement show_tables_statement
 
 %type <column_list> column_list select_column_list
 %type <value_list> update_column_list
@@ -107,6 +109,8 @@ statement:
     | delete_statement { $$ = $1; }
     | create_table_statement { $$ = $1; }
     | drop_table_statement { $$ = $1; }
+    | desc_statement { $$ = $1; }
+    | show_tables_statement { $$ = $1; }
     ;
 
 /* SELECT statement */
@@ -326,6 +330,20 @@ data_type:
 drop_table_statement:
     DROP TABLE IDENTIFIER {
         $$ = create_drop_table_stmt($3);
+    }
+    ;
+
+/* DESC statement */
+desc_statement:
+    DESC IDENTIFIER {
+        $$ = create_desc_stmt($2);
+    }
+    ;
+
+/* SHOW TABLES statement */
+show_tables_statement:
+    SHOW TABLES {
+        $$ = create_show_tables_stmt();
     }
     ;
 

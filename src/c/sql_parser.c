@@ -150,6 +150,16 @@ int main(int argc, char** argv) {
                     exec_result = execute_select(ast_root);
                     break;
                     
+                case NODE_DESC_STMT:
+                    if (verbose) printf("Executing DESC...\n");
+                    exec_result = execute_desc(ast_root);
+                    break;
+                    
+                case NODE_SHOW_TABLES_STMT:
+                    if (verbose) printf("Executing SHOW TABLES...\n");
+                    exec_result = execute_show_tables(ast_root);
+                    break;
+                    
                 case NODE_UPDATE_STMT:
                 case NODE_DELETE_STMT:
                     if (verbose) printf("Statement parsed successfully (execution not yet implemented).\n");

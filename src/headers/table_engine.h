@@ -50,6 +50,12 @@ table_result_t execute_select(ast_node_t* select_stmt);
 /* Execute SELECT statement using relational algebra */
 table_result_t execute_select_with_ra(ast_node_t* select_stmt);
 
+/* Execute DESC statement */
+table_result_t execute_desc(ast_node_t* desc_stmt);
+
+/* Execute SHOW TABLES statement */
+table_result_t execute_show_tables(ast_node_t* show_tables_stmt);
+
 /* Check if table exists */
 int table_exists(const char* table_name);
 

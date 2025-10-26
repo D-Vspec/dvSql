@@ -291,3 +291,95 @@ echo "SELECT * FROM users;" | ./sql_parser -v
 4. **Extend the System**: Add new RA operations like UNION or ORDER BY
 
 The relational algebra execution engine demonstrates how theoretical computer science concepts translate into practical database systems!
+
+## Database Administration Commands
+
+dvSQL also supports essential database administration commands:
+
+### SHOW TABLES - List All Tables
+
+```bash
+echo "SHOW TABLES;" | ./sql_parser
+```
+
+**Expected Output:**
+```
+Tables:
+=======
+users
+products
+orders
+
+3 table(s) found.
+```
+
+**With Relational Algebra:**
+```bash
+echo "SHOW TABLES;" | ./sql_parser -r
+```
+
+**Expected Output:**
+```
+Relational Algebra:
+==================
+Tree Format:
+SHOW (SHOW_TABLES)
+
+Mathematical Notation:
+SHOW_TABLES()
+
+Tables:
+=======
+users
+products
+
+2 table(s) found.
+```
+
+### DESC/DESCRIBE - Table Schema Information
+
+```bash
+echo "DESC users;" | ./sql_parser
+```
+
+**Expected Output:**
+```
+Table: users
+========================
+Column               Type            Null       Key        Extra     
+-------------------- --------------- ---------- ---------- ----------
+id                   INTEGER         YES        PRI                  
+name                 VARCHAR         NO                              
+email                VARCHAR         YES        UNI                  
+age                  INTEGER         YES                             
+created_at           TIMESTAMP       YES                             
+
+5 column(s) in table 'users'.
+```
+
+**Alternative syntax:**
+```bash
+echo "DESCRIBE users;" | ./sql_parser
+```
+
+**With Relational Algebra:**
+```bash
+echo "DESC users;" | ./sql_parser -r
+```
+
+**Expected Output:**
+```
+Relational Algebra:
+==================
+Tree Format:
+DESC (DESCRIBE_TABLE) [TABLE: users]
+
+Mathematical Notation:
+DESC(users)
+
+Table: users
+========================
+[table schema output...]
+```
+
+These meta-commands provide essential database introspection capabilities!

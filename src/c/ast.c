@@ -518,6 +518,14 @@ void print_ast(ast_node_t* node, int indent) {
             printf("DROP TABLE %s\n", node->data.drop_table_stmt.table_name);
             break;
             
+        case NODE_DESC_STMT:
+            printf("DESC %s\n", node->data.desc_stmt.table_name);
+            break;
+            
+        case NODE_SHOW_TABLES_STMT:
+            printf("SHOW TABLES\n");
+            break;
+            
         default:
             printf("Unknown AST node type\n");
             break;
@@ -654,9 +662,39 @@ void free_ast(ast_node_t* node) {
             free(node->data.drop_table_stmt.table_name);
             break;
             
+        case NODE_DESC_STMT:
+            free(node->data.desc_stmt.table_name);
+            break;
+            
+        case NODE_SHOW_TABLES_STMT:
+            /* No data to free for SHOW TABLES */
+            break;
+            
         default:
             break;
     }
     
     free(node);
+}
+
+/* Create DESC statement AST node */
+ast_node_t* create_desc_stmt(char* table_name) {
+    ast_node_t* node = malloc(sizeof(ast_node_t));
+    if (!node) return NULL;
+    
+    node->type = NODE_DESC_STMT;
+    node->data.desc_stmt.table_name = strdup(table_name);
+    
+    return node;
+}
+
+/* Create SHOW TABLES statement AST node */
+ast_node_t* create_show_tables_stmt(void) {
+    ast_node_t* node = malloc(sizeof(ast_node_t));
+    if (!node) return NULL;
+    
+    node->type = NODE_SHOW_TABLES_STMT;
+    /* No additional data needed */
+    
+    return node;
 }

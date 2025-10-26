@@ -101,49 +101,52 @@ extern int yydebug;
     UNION = 302,                   /* UNION  */
     INTERSECT = 303,               /* INTERSECT  */
     EXCEPT = 304,                  /* EXCEPT  */
-    INT_TYPE = 305,                /* INT_TYPE  */
-    INTEGER_TYPE = 306,            /* INTEGER_TYPE  */
-    VARCHAR_TYPE = 307,            /* VARCHAR_TYPE  */
-    CHAR_TYPE = 308,               /* CHAR_TYPE  */
-    TEXT_TYPE = 309,               /* TEXT_TYPE  */
-    DECIMAL_TYPE = 310,            /* DECIMAL_TYPE  */
-    NUMERIC_TYPE = 311,            /* NUMERIC_TYPE  */
-    FLOAT_TYPE = 312,              /* FLOAT_TYPE  */
-    REAL_TYPE = 313,               /* REAL_TYPE  */
-    DATE_TYPE = 314,               /* DATE_TYPE  */
-    TIME_TYPE = 315,               /* TIME_TYPE  */
-    TIMESTAMP_TYPE = 316,          /* TIMESTAMP_TYPE  */
-    BOOLEAN_TYPE = 317,            /* BOOLEAN_TYPE  */
-    PRIMARY = 318,                 /* PRIMARY  */
-    KEY = 319,                     /* KEY  */
-    FOREIGN = 320,                 /* FOREIGN  */
-    REFERENCES = 321,              /* REFERENCES  */
-    UNIQUE = 322,                  /* UNIQUE  */
-    CHECK = 323,                   /* CHECK  */
-    DEFAULT = 324,                 /* DEFAULT  */
-    AUTO_INCREMENT = 325,          /* AUTO_INCREMENT  */
-    EQUAL = 326,                   /* EQUAL  */
-    NOT_EQUAL = 327,               /* NOT_EQUAL  */
-    LESS_THAN = 328,               /* LESS_THAN  */
-    GREATER_THAN = 329,            /* GREATER_THAN  */
-    LESS_EQUAL = 330,              /* LESS_EQUAL  */
-    GREATER_EQUAL = 331,           /* GREATER_EQUAL  */
-    PLUS = 332,                    /* PLUS  */
-    MINUS = 333,                   /* MINUS  */
-    MULTIPLY = 334,                /* MULTIPLY  */
-    DIVIDE = 335,                  /* DIVIDE  */
-    MODULO = 336,                  /* MODULO  */
-    LPAREN = 337,                  /* LPAREN  */
-    RPAREN = 338,                  /* RPAREN  */
-    COMMA = 339,                   /* COMMA  */
-    SEMICOLON = 340,               /* SEMICOLON  */
-    DOT = 341,                     /* DOT  */
-    COUNT = 342,                   /* COUNT  */
-    SUM = 343,                     /* SUM  */
-    AVG = 344,                     /* AVG  */
-    MIN = 345,                     /* MIN  */
-    MAX = 346,                     /* MAX  */
-    UNKNOWN_TOKEN = 347            /* UNKNOWN_TOKEN  */
+    DESC = 305,                    /* DESC  */
+    SHOW = 306,                    /* SHOW  */
+    TABLES = 307,                  /* TABLES  */
+    INT_TYPE = 308,                /* INT_TYPE  */
+    INTEGER_TYPE = 309,            /* INTEGER_TYPE  */
+    VARCHAR_TYPE = 310,            /* VARCHAR_TYPE  */
+    CHAR_TYPE = 311,               /* CHAR_TYPE  */
+    TEXT_TYPE = 312,               /* TEXT_TYPE  */
+    DECIMAL_TYPE = 313,            /* DECIMAL_TYPE  */
+    NUMERIC_TYPE = 314,            /* NUMERIC_TYPE  */
+    FLOAT_TYPE = 315,              /* FLOAT_TYPE  */
+    REAL_TYPE = 316,               /* REAL_TYPE  */
+    DATE_TYPE = 317,               /* DATE_TYPE  */
+    TIME_TYPE = 318,               /* TIME_TYPE  */
+    TIMESTAMP_TYPE = 319,          /* TIMESTAMP_TYPE  */
+    BOOLEAN_TYPE = 320,            /* BOOLEAN_TYPE  */
+    PRIMARY = 321,                 /* PRIMARY  */
+    KEY = 322,                     /* KEY  */
+    FOREIGN = 323,                 /* FOREIGN  */
+    REFERENCES = 324,              /* REFERENCES  */
+    UNIQUE = 325,                  /* UNIQUE  */
+    CHECK = 326,                   /* CHECK  */
+    DEFAULT = 327,                 /* DEFAULT  */
+    AUTO_INCREMENT = 328,          /* AUTO_INCREMENT  */
+    EQUAL = 329,                   /* EQUAL  */
+    NOT_EQUAL = 330,               /* NOT_EQUAL  */
+    LESS_THAN = 331,               /* LESS_THAN  */
+    GREATER_THAN = 332,            /* GREATER_THAN  */
+    LESS_EQUAL = 333,              /* LESS_EQUAL  */
+    GREATER_EQUAL = 334,           /* GREATER_EQUAL  */
+    PLUS = 335,                    /* PLUS  */
+    MINUS = 336,                   /* MINUS  */
+    MULTIPLY = 337,                /* MULTIPLY  */
+    DIVIDE = 338,                  /* DIVIDE  */
+    MODULO = 339,                  /* MODULO  */
+    LPAREN = 340,                  /* LPAREN  */
+    RPAREN = 341,                  /* RPAREN  */
+    COMMA = 342,                   /* COMMA  */
+    SEMICOLON = 343,               /* SEMICOLON  */
+    DOT = 344,                     /* DOT  */
+    COUNT = 345,                   /* COUNT  */
+    SUM = 346,                     /* SUM  */
+    AVG = 347,                     /* AVG  */
+    MIN = 348,                     /* MIN  */
+    MAX = 349,                     /* MAX  */
+    UNKNOWN_TOKEN = 350            /* UNKNOWN_TOKEN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -168,7 +171,7 @@ union YYSTYPE
     data_type_t data_type;
     join_type_t join_type;
 
-#line 172 "sql_parser.tab.h"
+#line 175 "sql_parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

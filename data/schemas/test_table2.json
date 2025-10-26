@@ -1,0 +1,15 @@
+{
+  "table_name": "test_table2",
+  "created_at": "2025-10-26 17:11:00",
+  "column_count": 1,
+  "columns": [
+    {
+      "name": "id",
+      "type": "INTEGER",
+      "primary_key": true,
+      "not_null": false,
+      "unique": false,
+      "auto_increment": false
+    }
+  ]
+}

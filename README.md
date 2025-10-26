@@ -109,6 +109,8 @@ EXAMPLES:
   ./sql_parser -r query.sql        # Show relational algebra  
   ./sql_parser -a query.sql        # Show only relational algebra
   echo 'SELECT * FROM users;' | ./sql_parser -a  # Pipe to parser
+  echo 'DESC users;' | ./sql_parser              # Describe table
+  echo 'SHOW TABLES;' | ./sql_parser             # List all tables
 ```
 
 ## Documentation
@@ -121,11 +123,23 @@ EXAMPLES:
 |----------|-------------|
 | **[🏗️ ARCHITECTURE.md](docs/ARCHITECTURE.md)** | **Complete system overview with code examples** |
 | **[🚀 DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** | **Quick start guide for developers** |
+| **[📚 TUTORIAL.md](docs/TUTORIAL.md)** | **Hands-on examples and tutorials** |
 | **[Quick Start](docs/user-guide/quick-start.md)** | Get running in 5 minutes |
 | **[Installation](docs/user-guide/installation.md)** | Setup and dependencies |
 | **[Examples](docs/user-guide/examples.md)** | Practical usage examples |
 | **[API Reference](docs/api/tokens.md)** | Token types and functions |
 | **[Extending](docs/developer-guide/extending.md)** | Add new features |
+
+## Supported SQL Statements
+
+- ✅ **SELECT** (with WHERE, JOIN, ORDER BY, GROUP BY) - *fully functional with RA execution*
+- ✅ **INSERT INTO ... VALUES** - *fully functional*  
+- ✅ **CREATE TABLE** - *fully functional*
+- ✅ **DROP TABLE** - *fully functional*
+- ✅ **DESC/DESCRIBE** - *table schema information*
+- ✅ **SHOW TABLES** - *list all tables*
+- 🚧 **UPDATE ... SET ... WHERE** - *parse only*
+- 🚧 **DELETE FROM ... WHERE** - *parse only*
 
 ### Documentation Structure
 
