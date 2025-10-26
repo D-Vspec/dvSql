@@ -1,0 +1,12 @@
+# Table: users
+# Created: 2025-10-26 11:29:59
+# Columns: 5
+# Data format: CSV
+# Column headers:
+# id (INTEGER PRIMARY KEY)
+# name (VARCHAR(100) NOT NULL)
+# email (VARCHAR(255) UNIQUE)
+# age (INTEGER)
+# created_at (TIMESTAMP)
+# --- DATA START ---
+NULL,NULL,NULL,NULL,NULL

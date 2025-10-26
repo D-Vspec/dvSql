@@ -17,13 +17,13 @@ LEXER_TARGET = sql_lexer
 # Source files for parser
 PARSER_LEX_FILE = src/lex/sql_parser_lexer.l
 PARSER_YACC_FILE = src/yacc/sql_parser.y
-PARSER_C_FILES = src/c/tokens.c src/c/ast.c src/c/sql_parser.c
+PARSER_C_FILES = src/c/tokens.c src/c/ast.c src/c/sql_parser.c src/c/table_engine.c
 PARSER_GENERATED_C = lex.yy.c y.tab.c
 PARSER_GENERATED_H = y.tab.h
 PARSER_TARGET = sql_parser
 
 # Header files
-HEADER_FILES = src/headers/tokens.h src/headers/ast.h
+HEADER_FILES = src/headers/tokens.h src/headers/ast.h src/headers/table_engine.h
 
 # Object files
 LEXER_OBJECTS = $(LEXER_C_FILES:.c=.o) $(LEXER_GENERATED_C:.c=.o)

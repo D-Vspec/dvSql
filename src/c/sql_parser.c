@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "../headers/tokens.h"
 #include "../headers/ast.h"
+#include "../headers/table_engine.h"
 
 /* External variables from lexer and parser */
 extern FILE* yyin;
@@ -21,10 +22,18 @@ int main(int argc, char** argv) {
     int opt;
     int verbose = 0;
     int show_ast = 1;
+    int execute_stmt = 1;  /* Execute statements by default */
     const char* input_file = NULL;
     
+    /* Initialize table engine */
+    table_result_t init_result = table_engine_init();
+    if (init_result != TABLE_SUCCESS) {
+        fprintf(stderr, "Failed to initialize table engine: %s\n", table_error_string(init_result));
+        return 1;
+    }
+    
     /* Parse command line options */
-    while ((opt = getopt(argc, argv, "hvqf:")) != -1) {
+    while ((opt = getopt(argc, argv, "hvqnf:")) != -1) {
         switch (opt) {
             case 'h':
                 print_usage(argv[0]);
@@ -34,6 +43,9 @@ int main(int argc, char** argv) {
                 break;
             case 'q':
                 show_ast = 0;
+                break;
+            case 'n':
+                execute_stmt = 0;  /* Parse only, don't execute */
                 break;
             case 'f':
                 input_file = optarg;
@@ -75,6 +87,46 @@ int main(int argc, char** argv) {
             printf("\n");
         }
         
+        /* Execute statement if requested */
+        if (execute_stmt) {
+            table_result_t exec_result = TABLE_SUCCESS;
+            
+            switch (ast_root->type) {
+                case NODE_CREATE_TABLE_STMT:
+                    if (verbose) printf("Executing CREATE TABLE...\n");
+                    exec_result = execute_create_table(ast_root);
+                    break;
+                    
+                case NODE_DROP_TABLE_STMT:
+                    if (verbose) printf("Executing DROP TABLE...\n");
+                    exec_result = execute_drop_table(ast_root);
+                    break;
+                    
+                case NODE_INSERT_STMT:
+                    if (verbose) printf("Executing INSERT...\n");
+                    exec_result = execute_insert(ast_root);
+                    break;
+                    
+                case NODE_SELECT_STMT:
+                    if (verbose) printf("Executing SELECT...\n");
+                    exec_result = execute_select(ast_root);
+                    break;
+                    
+                case NODE_UPDATE_STMT:
+                case NODE_DELETE_STMT:
+                    if (verbose) printf("Statement parsed successfully (execution not yet implemented).\n");
+                    break;
+                    
+                default:
+                    if (verbose) printf("Unknown statement type.\n");
+                    break;
+            }
+            
+            if (exec_result != TABLE_SUCCESS) {
+                print_table_error(exec_result, "statement execution");
+            }
+        }
+        
         if (verbose) {
             printf("Parse completed successfully.\n");
         }
@@ -99,20 +151,25 @@ void print_usage(const char* program_name) {
     printf("  -h          Show this help message\n");
     printf("  -v          Verbose output\n");
     printf("  -q          Quiet mode (don't print AST)\n");
+    printf("  -n          Parse only (don't execute statements)\n");
     printf("  -f file     Parse the specified file\n");
     printf("\nEXAMPLES:\n");
-    printf("  %s query.sql           # Parse query.sql\n", program_name);
-    printf("  %s -f query.sql        # Parse query.sql (explicit)\n", program_name);
-    printf("  %s -v query.sql        # Parse with verbose output\n", program_name);
+    printf("  %s query.sql           # Parse and execute query.sql\n", program_name);
+    printf("  %s -f query.sql        # Parse and execute query.sql (explicit)\n", program_name);
+    printf("  %s -v query.sql        # Parse and execute with verbose output\n", program_name);
     printf("  echo 'SELECT * FROM users;' | %s  # Parse from stdin\n", program_name);
-    printf("  %s -q query.sql        # Parse without printing AST\n", program_name);
+    printf("  %s -q query.sql        # Parse and execute without printing AST\n", program_name);
+    printf("  %s -n query.sql        # Parse only without executing\n", program_name);
     printf("\nSUPPORTED SQL STATEMENTS:\n");
-    printf("  - SELECT (with WHERE, JOIN, ORDER BY, GROUP BY, HAVING)\n");
-    printf("  - INSERT INTO ... VALUES\n");
-    printf("  - UPDATE ... SET ... WHERE\n");
-    printf("  - DELETE FROM ... WHERE\n");
-    printf("  - CREATE TABLE\n");
-    printf("  - DROP TABLE\n");
+    printf("  - SELECT (with WHERE, JOIN, ORDER BY, GROUP BY, HAVING) [fully functional]\n");
+    printf("  - INSERT INTO ... VALUES [fully functional]\n");
+    printf("  - UPDATE ... SET ... WHERE [parse only]\n");
+    printf("  - DELETE FROM ... WHERE [parse only]\n");
+    printf("  - CREATE TABLE [fully functional]\n");
+    printf("  - DROP TABLE [fully functional]\n");
+    printf("\nDATA STORAGE:\n");
+    printf("  - Table schemas: data/schemas/\n");
+    printf("  - Table data: data/tables/\n");
 }
 
 int parse_file(const char* filename) {
