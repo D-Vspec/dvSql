@@ -1,5 +1,6 @@
+#line 1 "lexer_lex.yy.c"
 
-#line 2 "lex.yy.c"
+#line 3 "lexer_lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -750,8 +751,8 @@ void print_token(int token, const char* text) {
     printf("Line %d, Col %d: %-15s '%s'\n", yylineno, yycolno - yyleng, 
            get_token_name(token), text);
 }
-#line 753 "lex.yy.c"
-#line 754 "lex.yy.c"
+#line 754 "lexer_lex.yy.c"
+#line 755 "lexer_lex.yy.c"
 
 #define INITIAL 0
 
@@ -971,7 +972,7 @@ YY_DECL
 #line 42 "src/lex/sql_lexer.l"
 
 
-#line 974 "lex.yy.c"
+#line 975 "lexer_lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1536,7 +1537,7 @@ YY_RULE_SETUP
 #line 165 "src/lex/sql_lexer.l"
 ECHO;
 	YY_BREAK
-#line 1539 "lex.yy.c"
+#line 1540 "lexer_lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

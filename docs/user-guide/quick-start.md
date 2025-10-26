@@ -1,8 +1,8 @@
 # Quick Start Guide
 
-Get up and running with the dvSQL lexer in 5 minutes.
+Get up and running with the dvSQL parser and lexer in 5 minutes.
 
-## 1. Build the Lexer
+## 1. Build the Parser and Lexer
 
 ```bash
 cd dvSql
@@ -12,18 +12,46 @@ make
 Expected output:
 ```
 gcc -Wall -Wextra -g -std=c99 -D_POSIX_C_SOURCE=200809L -Isrc/headers -c src/c/tokens.c -o src/c/tokens.o
+gcc -Wall -Wextra -g -std=c99 -D_POSIX_C_SOURCE=200809L -Isrc/headers -c src/c/ast.c -o src/c/ast.o
+gcc -Wall -Wextra -g -std=c99 -D_POSIX_C_SOURCE=200809L -Isrc/headers -c src/c/sql_parser.c -o src/c/sql_parser.o
+bison -d -v src/yacc/sql_parser.y
+flex src/lex/sql_parser_lexer.l
+gcc -Wall -Wextra -g -std=c99 -D_POSIX_C_SOURCE=200809L -Isrc/headers -c lex.yy.c -o lex.yy.o
+gcc -Wall -Wextra -g -std=c99 -D_POSIX_C_SOURCE=200809L -Isrc/headers -c y.tab.c -o y.tab.o
+gcc -Wall -Wextra -g -std=c99 -D_POSIX_C_SOURCE=200809L -o sql_parser src/c/tokens.o src/c/ast.o src/c/sql_parser.o lex.yy.o y.tab.o
 flex src/lex/sql_lexer.l
 gcc -Wall -Wextra -g -std=c99 -D_POSIX_C_SOURCE=200809L -Isrc/headers -c lex.yy.c -o lex.yy.o
 gcc -Wall -Wextra -g -std=c99 -D_POSIX_C_SOURCE=200809L -o sql_lexer src/c/tokens.o lex.yy.o
 ```
 
-## 2. Run Your First Test
+This builds both:
+- **`sql_parser`** - Full SQL parser that creates AST
+- **`sql_lexer`** - Token analyzer for development/debugging
+
+## 2. Parse Your First SQL Statement
+
+```bash
+echo "SELECT id, name FROM users WHERE age > 18;" | ./sql_parser
+```
+
+You'll see the parsed AST structure:
+```
+Enter SQL statement (end with semicolon and Ctrl+D):
+> 
+Parsed AST:
+===========
+SELECT id, name
+FROM users
+WHERE (age > literal)
+```
+
+## 3. Try the Lexer for Token Analysis
 
 ```bash
 echo "SELECT id, name FROM users WHERE age > 18;" | ./sql_lexer
 ```
 
-You'll see detailed token output:
+See detailed token breakdown:
 ```
 Reading from standard input...
 Enter SQL statements (Ctrl+D to end):
@@ -43,7 +71,7 @@ Line 1, Col 42: SEMICOLON       ';'
 Tokenization complete.
 ```
 
-## 3. Test with Sample Files
+## 4. Test with Sample Files
 
 Run the included test suite:
 
@@ -51,53 +79,91 @@ Run the included test suite:
 make test
 ```
 
-This runs three test files:
-- **Simple queries** - Basic SELECT, FROM, WHERE
-- **Complex queries** - JOINs, subqueries, aggregates
-- **DDL statements** - CREATE TABLE, INSERT, UPDATE
+This tests both parser and lexer with various SQL statements:
+- **SELECT statements** - Simple and complex queries
+- **INSERT statements** - Data insertion 
+- **UPDATE/DELETE** - Data modification
+- **CREATE TABLE** - Schema definition
+- **Aggregate functions** - COUNT, SUM, AVG, etc.
 
-## 4. Try Interactive Mode
+## 5. Parse Complex SQL
 
-Start the lexer without arguments for interactive input:
-
-```bash
-./sql_lexer
-```
-
-Then type SQL statements:
-```sql
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
-);
-```
-
-Press `Ctrl+D` when finished.
-
-## 5. Analyze a SQL File
-
-Create a SQL file and analyze it:
+Create a complex SQL file and parse it:
 
 ```bash
-cat > my_query.sql << EOF
+cat > complex_query.sql << EOF
 SELECT DISTINCT 
     u.name,
     COUNT(p.id) as post_count
 FROM users u
 LEFT JOIN posts p ON u.id = p.user_id
-WHERE u.active = TRUE
-GROUP BY u.id, u.name
-HAVING COUNT(p.id) > 5
-ORDER BY post_count DESC
-LIMIT 10;
+WHERE u.active = 1 AND p.published = 1
+ORDER BY u.name;
 EOF
 
-./sql_lexer my_query.sql
+./sql_parser complex_query.sql
+```
+
+Output shows the complete AST structure:
+```
+Parsed AST:
+===========
+SELECT DISTINCT u.name, COUNT(p.id)
+FROM users AS u
+LEFT JOIN posts AS p ON (u.id = p.user_id)
+WHERE ((u.active = literal) AND (p.published = literal))
+ORDER BY u.name
+```
+
+## 6. Interactive Parser Mode
+
+Start the parser without arguments:
+
+```bash
+./sql_parser
+```
+
+Then type SQL statements:
+```sql
+CREATE TABLE users (
+    id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE
+);
+```
+
+Press `Ctrl+D` when finished to see the parsed CREATE TABLE AST.
+
+## Parser Command Line Options
+
+The parser supports several useful options:
+
+```bash
+# Verbose output with parsing details
+./sql_parser -v query.sql
+
+# Quiet mode (parse without showing AST)
+./sql_parser -q query.sql
+
+# Help information
+./sql_parser -h
 ```
 
 ## What You'll See
 
-The lexer identifies and categorizes every element:
+### Parser Output (AST)
+The parser shows the hierarchical structure of your SQL:
+
+```
+CREATE TABLE users (
+  id INT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) UNIQUE
+)
+```
+
+### Lexer Output (Tokens)
+The lexer identifies every element:
 
 | Token Type | Example | Description |
 |------------|---------|-------------|
@@ -109,42 +175,65 @@ The lexer identifies and categorizes every element:
 | Data Types | `INTEGER`, `VARCHAR`, `DATE` | SQL data types |
 | Functions | `COUNT`, `SUM`, `AVG` | Aggregate functions |
 
-## Understanding the Output
+## Supported SQL Features
 
-Each token shows:
-- **Line number** - Where the token appears
-- **Column number** - Position within the line  
-- **Token type** - Category of the token
-- **Token value** - The actual text
+### ✅ Fully Supported
+- **SELECT** with columns, WHERE, JOIN, ORDER BY
+- **INSERT** with explicit columns and VALUES
+- **UPDATE** with SET and WHERE clauses  
+- **DELETE** with WHERE conditions
+- **CREATE TABLE** with column definitions and constraints
+- **DROP TABLE** statements
+- **Aggregate functions** (COUNT, SUM, AVG, MIN, MAX)
+- **JOIN types** (INNER, LEFT, RIGHT, OUTER)
+- **Data types** (INT, VARCHAR, CHAR, TEXT, DECIMAL, etc.)
+- **Operators** (arithmetic, comparison, logical)
+- **Constraints** (PRIMARY KEY, NOT NULL, UNIQUE)
 
-Example:
+### ⚠️ Limitations
+- No subqueries/nested queries
+- No views (CREATE VIEW)
+- No stored procedures
+- No transactions
+- No indexes
+
+## Understanding Parser Output
+
+The AST shows the logical structure:
+
+```sql
+SELECT u.name FROM users u WHERE u.age > 18;
 ```
-Line 1, Col 8: IDENTIFIER 'users'
-│      │  │     │          │
-│      │  │     │          └── Actual text found
-│      │  │     └──────────── Token category
-│      │  └───────────────── Character position
-│      └─────────────────── Line number
-└───────────────────────── "Line" label
+
+Becomes:
+```
+SELECT_STMT
+├── columns: COLUMN_LIST(u.name)
+├── from_table: TABLE_REF(users AS u)  
+└── where_clause: BINARY_OP(>)
+    ├── left: COLUMN_REF(u.age)
+    └── right: LITERAL(18)
 ```
 
 ## Next Steps
 
 - **Learn more**: Read the [Usage Examples](examples.md)
-- **Command line options**: See [CLI Reference](cli.md)  
-- **Extend the lexer**: Check [Developer Guide](../developer-guide/extending.md)
-- **API details**: Browse [API Documentation](../api/tokens.md)
+- **Parser API**: See [Parser API Reference](../api/parser.md)
+- **AST structure**: Study [AST Node Types](../api/ast.md)
+- **Command line options**: Check [CLI Reference](cli.md)
+- **Extend the parser**: Read [Developer Guide](../developer-guide/extending.md)
 
-## Common First Steps
+## Common Use Cases
 
-1. **Test your SQL**: Paste your queries and see how they tokenize
-2. **Learn token types**: Study the output to understand SQL structure
-3. **Try edge cases**: Test comments, strings with quotes, complex expressions
-4. **Measure performance**: Time the lexer on large SQL files
+1. **SQL Analysis**: Understand query structure and complexity
+2. **Syntax Validation**: Check SQL for parse errors
+3. **AST Processing**: Build tools that analyze or transform SQL
+4. **Learning**: Study how SQL statements are structured
+5. **Development**: Debug and test SQL parsing logic
 
 ## Getting Help
 
 - **Installation issues**: See [Installation Guide](installation.md)
 - **Usage questions**: Check [Examples](examples.md)
-- **Technical details**: Read [API Documentation](../api/)
+- **Parser API**: Read [API Documentation](../api/)
 - **Development**: Visit [Developer Guide](../developer-guide/)
