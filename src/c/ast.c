@@ -1,3 +1,4 @@
+#include <string.h>
 #include "../headers/ast.h"
 #include "../headers/tokens.h"
 
@@ -94,6 +95,9 @@ expression_t* create_literal_expr(literal_value_t value, int literal_type) {
     if (!expr) return NULL;
     
     expr->type = EXPR_LITERAL;
+    expr->literal_type = literal_type;
+    /* Initialize the union to zero first */
+    memset(&expr->data.literal, 0, sizeof(literal_value_t));
     expr->data.literal = value;
     
     return expr;
@@ -363,6 +367,37 @@ static void print_table_ref(table_ref_t* ref, int indent) {
     }
 }
 
+static const char* join_type_to_string(join_type_t type) {
+    switch (type) {
+        case JOIN_INNER: return "INNER";
+        case JOIN_LEFT: return "LEFT";
+        case JOIN_RIGHT: return "RIGHT";
+        default: return "";
+    }
+}
+
+static void print_join_clause(join_clause_t* clause, int indent) {
+    if (!clause) return;
+    
+    join_clause_t* current = clause;
+    while (current) {
+        print_indent(indent);
+        const char* join_type_str = join_type_to_string(current->join_type);
+        if (strlen(join_type_str) > 0) {
+            printf("%s JOIN ", join_type_str);
+        } else {
+            printf("JOIN ");
+        }
+        print_table_ref(current->table, 0);
+        if (current->on_condition) {
+            printf(" ON ");
+            print_expression(current->on_condition, 0);
+        }
+        printf("\n");
+        current = current->next;
+    }
+}
+
 static const char* data_type_to_string(data_type_t type) {
     switch (type) {
         case DATA_TYPE_INT: return "INT";
@@ -418,6 +453,10 @@ void print_ast(ast_node_t* node, int indent) {
                 printf("FROM ");
                 print_table_ref(node->data.select_stmt.from_table, 0);
                 printf("\n");
+            }
+            
+            if (node->data.select_stmt.joins) {
+                print_join_clause(node->data.select_stmt.joins, indent);
             }
             
             if (node->data.select_stmt.where_clause) {
@@ -495,7 +534,7 @@ void free_expression(expression_t* expr) {
             break;
             
         case EXPR_LITERAL:
-            if (expr->data.literal.string_val) {
+            if (expr->literal_type == STRING_LITERAL && expr->data.literal.string_val) {
                 free(expr->data.literal.string_val);
             }
             break;

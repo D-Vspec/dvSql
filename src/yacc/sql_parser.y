@@ -64,16 +64,17 @@ ast_node_t* ast_root = NULL;
 %type <ast_node> statement select_statement insert_statement update_statement
 %type <ast_node> delete_statement create_table_statement drop_table_statement
 
-%type <column_list> column_list select_column_list update_column_list
-%type <value_list> value_list update_value_list
-%type <table_ref> table_reference from_clause
-%type <join_clause> join_clause_list join_clause
+%type <column_list> column_list select_column_list
+%type <value_list> update_column_list
+%type <value_list> value_list
+%type <table_ref> table_reference
+%type <join_clause> join_clause_list join_clause optional_join_clause_list
 %type <expression> expression condition where_clause having_clause
+%type <column_list> order_by_clause
 %type <expression> literal function_call column_reference
 %type <column_def> column_definition_list column_definition
 %type <data_type> data_type
 %type <join_type> join_type
-%type <literal> literal_value
 
 /* Operator precedence and associativity */
 %left OR
@@ -110,24 +111,24 @@ statement:
 
 /* SELECT statement */
 select_statement:
-    SELECT select_column_list from_clause where_clause {
-        $$ = create_select_stmt($2, $3);
-        if ($$) $$->data.select_stmt.where_clause = $4;
-    }
-    | SELECT select_column_list from_clause {
-        $$ = create_select_stmt($2, $3);
-    }
-    | SELECT DISTINCT select_column_list from_clause where_clause {
-        $$ = create_select_stmt($3, $4);
+    SELECT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause {
+        $$ = create_select_stmt($2, $4);
         if ($$) {
-            $$->data.select_stmt.distinct = 1;
-            $$->data.select_stmt.where_clause = $5;
+            $$->data.select_stmt.joins = $5;
+            $$->data.select_stmt.where_clause = $6;
+            $$->data.select_stmt.order_by = $7;
         }
     }
-    | SELECT DISTINCT select_column_list from_clause {
-        $$ = create_select_stmt($3, $4);
-        if ($$) $$->data.select_stmt.distinct = 1;
+    | SELECT DISTINCT select_column_list FROM table_reference optional_join_clause_list where_clause order_by_clause {
+        $$ = create_select_stmt($3, $5);
+        if ($$) {
+            $$->data.select_stmt.distinct = 1;
+            $$->data.select_stmt.joins = $6;
+            $$->data.select_stmt.where_clause = $7;
+            $$->data.select_stmt.order_by = $8;
+        }
     }
+    ;
     ;
 
 select_column_list:
@@ -148,16 +149,6 @@ column_list:
     }
     ;
 
-from_clause:
-    FROM table_reference join_clause_list {
-        $$ = $2;
-        if ($$) $$->next = (table_ref_t*)$3;
-    }
-    | FROM table_reference {
-        $$ = $2;
-    }
-    ;
-
 table_reference:
     IDENTIFIER {
         $$ = create_table_ref($1, NULL);
@@ -168,6 +159,11 @@ table_reference:
     | IDENTIFIER IDENTIFIER {
         $$ = create_table_ref($1, $2);
     }
+    ;
+
+optional_join_clause_list:
+    join_clause_list { $$ = $1; }
+    | /* empty */ { $$ = NULL; }
     ;
 
 join_clause_list:
@@ -205,6 +201,11 @@ having_clause:
     | /* empty */ { $$ = NULL; }
     ;
 
+order_by_clause:
+    ORDER BY column_list { $$ = $3; }
+    | /* empty */ { $$ = NULL; }
+    ;
+
 /* INSERT statement */
 insert_statement:
     INSERT INTO IDENTIFIER LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN {
@@ -228,30 +229,18 @@ value_list:
 /* UPDATE statement */
 update_statement:
     UPDATE IDENTIFIER SET update_column_list where_clause {
-        /* Extract values from update_column_list for set_values */
-        value_list_t* values = NULL;
-        column_list_t* current = $4;
-        while (current) {
-            if (!values) {
-                values = create_value_list(current->column);
-            } else {
-                add_value_to_list(&values, current->column);
-            }
-            current = current->next;
-        }
-        $$ = create_update_stmt($2, $4, values, $5);
+        /* Note: update_column_list now contains the values, not column names */
+        $$ = create_update_stmt($2, NULL, $4, $5);
     }
     ;
 
 update_column_list:
     update_column_list COMMA IDENTIFIER EQUAL expression {
-        expression_t* col_expr = create_identifier_expr($3);
-        add_column_to_list(&$1, col_expr);
+        add_value_to_list(&$1, $5);  /* Add the expression value */
         $$ = $1;
     }
     | IDENTIFIER EQUAL expression {
-        expression_t* col_expr = create_identifier_expr($1);
-        $$ = create_column_list(col_expr);
+        $$ = create_value_list($3);  /* Start with the expression value */
     }
     ;
 
@@ -300,6 +289,20 @@ column_definition:
     | IDENTIFIER data_type AUTO_INCREMENT {
         $$ = create_column_def($1, $2);
         if ($$) $$->has_auto_increment = 1;
+    }
+    | IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN NOT NULL_TOK {
+        $$ = create_column_def($1, DATA_TYPE_VARCHAR);
+        if ($$) {
+            $$->size = $4;
+            $$->is_not_null = 1;
+        }
+    }
+    | IDENTIFIER VARCHAR_TYPE LPAREN INTEGER_LITERAL RPAREN UNIQUE {
+        $$ = create_column_def($1, DATA_TYPE_VARCHAR);
+        if ($$) {
+            $$->size = $4;
+            $$->is_unique = 1;
+        }
     }
     ;
 

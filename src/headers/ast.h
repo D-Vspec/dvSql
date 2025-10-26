@@ -81,6 +81,7 @@ typedef union {
 /* Expression structure */
 struct expression {
     expression_type_t type;
+    int literal_type;  /* Only used for EXPR_LITERAL */
     union {
         char* identifier;
         literal_value_t literal;
