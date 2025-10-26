@@ -26,9 +26,45 @@ make test
 - **Complete SQL parsing** - SELECT, INSERT, CREATE, DROP, etc.
 - **Abstract Syntax Tree (AST)** - Full AST generation and pretty printing
 - **Relational Algebra Conversion** - Convert SELECT queries to relational algebra notation
-- **Query Execution** - Execute parsed queries on CSV data storage
+- **Relational Algebra Execution** - **Data fetching using pure relational algebra operations**
+- **Query Execution** - Execute parsed queries on CSV data storage using RA engine
 - **Position tracking** - Line and column information for errors
 - **Comprehensive testing** - Extensive test suite included
+
+## Relational Algebra Engine
+
+🎯 **Unique Feature**: dvSQL uses **relational algebra as the primary execution engine**
+
+Instead of executing SQL directly, dvSQL:
+1. **Converts** SQL to relational algebra trees
+2. **Executes** the RA operations to fetch data
+3. **Demonstrates** the theoretical foundation of database systems
+
+### Example Execution Flow
+
+```sql
+SELECT name, email FROM users WHERE age > 25;
+```
+
+**Step 1: SQL → Relational Algebra**
+```
+π_{name,email}(σ_{age>25}(users))
+```
+
+**Step 2: RA Execution**
+```
+1. execute_ra_relation("users")     → Load all user data
+2. execute_ra_selection(age > 25)   → Filter by age condition  
+3. execute_ra_projection(name,email) → Select only name and email columns
+```
+
+**Step 3: Results**
+```
+name         | email
+-------------+----------------
+Jane Smith   | jane@example.com
+Bob Johnson  | bob@test.org
+```
 
 ## Relational Algebra Support
 
@@ -79,10 +115,12 @@ EXAMPLES:
 
 📚 **[Complete Documentation](docs/)** - Comprehensive guides and references
 
-### Quick Links
+### Essential Reading
 
 | Document | Description |
 |----------|-------------|
+| **[🏗️ ARCHITECTURE.md](docs/ARCHITECTURE.md)** | **Complete system overview with code examples** |
+| **[🚀 DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** | **Quick start guide for developers** |
 | **[Quick Start](docs/user-guide/quick-start.md)** | Get running in 5 minutes |
 | **[Installation](docs/user-guide/installation.md)** | Setup and dependencies |
 | **[Examples](docs/user-guide/examples.md)** | Practical usage examples |
