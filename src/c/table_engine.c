@@ -272,6 +272,12 @@ table_result_t execute_select(ast_node_t* select_stmt) {
     
     printf("\n%d row(s) returned.\n", row_count);
     
+    /* Free allocated column names (only for generic ones) */
+    if (metadata->column_count != 5) {
+        for (int i = 0; i < metadata->column_count; i++) {
+            free(column_names[i]);
+        }
+    }
     free(column_names);
     free_table_rows(rows, row_count);
     free_table_metadata(metadata);
@@ -596,7 +602,20 @@ char* expression_to_csv_string(expression_t* expr) {
                     snprintf(result, 256, "0");
                     break;
                 default:
-                    snprintf(result, 256, "NULL");
+                    /* Handle token values that don't match enum constants */
+                    if (expr->literal_type == 260) {  /* INTEGER_LITERAL token value */
+                        snprintf(result, 256, "%d", expr->data.literal.int_val);
+                    } else if (expr->literal_type == 259) {  /* STRING_LITERAL token value */
+                        if (expr->data.literal.string_val) {
+                            snprintf(result, 256, "%s", expr->data.literal.string_val);
+                        } else {
+                            snprintf(result, 256, "NULL");
+                        }
+                    } else if (expr->literal_type == 261) {  /* DECIMAL_LITERAL token value */
+                        snprintf(result, 256, "%.2f", expr->data.literal.float_val);
+                    } else {
+                        snprintf(result, 256, "NULL");
+                    }
                     break;
             }
             break;

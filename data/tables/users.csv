@@ -1,5 +1,5 @@
 # Table: users
-# Created: 2025-10-26 11:29:59
+# Created: 2025-10-26 11:36:45
 # Columns: 5
 # Data format: CSV
 # Column headers:
@@ -9,4 +9,7 @@
 # age (INTEGER)
 # created_at (TIMESTAMP)
 # --- DATA START ---
-NULL,NULL,NULL,NULL,NULL
+1,John,john@test.com,25,now
+2,Jane Smith,jane@example.com,28,2023-02-01 09:15:00
+3,Bob Johnson,bob@test.org,35,2023-03-15 14:20:30
+4,Alice Brown,alice@demo.com,22,2023-04-10 16:45:00

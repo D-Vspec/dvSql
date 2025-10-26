@@ -1,0 +1,1 @@
+INSERT INTO users VALUES (2, 'Jane Smith', 'jane@example.com', 28, '2023-02-01 09:15:00');

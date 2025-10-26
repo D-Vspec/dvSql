@@ -1,0 +1,1 @@
+INSERT INTO users VALUES (3, 'Bob Johnson', 'bob@test.org', 35, '2023-03-15 14:20:30');
