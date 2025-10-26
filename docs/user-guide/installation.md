@@ -109,7 +109,6 @@ echo "SELECT * FROM users;" | ./sql_lexer
 
 # Expected output:
 # Reading from standard input...
-# Enter SQL statements (Ctrl+D to end):
 # ----------------------------------------
 # Line 1, Col 1: SELECT          'SELECT'
 # Line 1, Col 8: MULTIPLY        '*'

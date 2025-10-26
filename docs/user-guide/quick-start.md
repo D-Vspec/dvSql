@@ -36,7 +36,6 @@ echo "SELECT id, name FROM users WHERE age > 18;" | ./sql_parser
 
 You'll see the parsed AST structure:
 ```
-Enter SQL statement (end with semicolon and Ctrl+D):
 > 
 Parsed AST:
 ===========
@@ -54,7 +53,6 @@ echo "SELECT id, name FROM users WHERE age > 18;" | ./sql_lexer
 See detailed token breakdown:
 ```
 Reading from standard input...
-Enter SQL statements (Ctrl+D to end):
 ----------------------------------------
 Line 1, Col 1: SELECT          'SELECT'
 Line 1, Col 8: IDENTIFIER      'id'

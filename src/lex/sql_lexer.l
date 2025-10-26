@@ -176,7 +176,6 @@ int main(int argc, char **argv) {
         printf("----------------------------------------\n");
     } else {
         printf("Reading from standard input...\n");
-        printf("Enter SQL statements (Ctrl+D to end):\n");
         printf("----------------------------------------\n");
     }
 

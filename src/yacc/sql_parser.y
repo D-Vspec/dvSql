@@ -95,11 +95,17 @@ ast_node_t* ast_root = NULL;
 
 program:
     statement_list
+    | single_statement  /* Allow single statement for interactive mode */
     ;
 
 statement_list:
     statement_list statement SEMICOLON { ast_root = $2; }
     | statement SEMICOLON { ast_root = $1; }
+    ;
+
+/* Single statement for interactive mode */
+single_statement:
+    statement SEMICOLON { ast_root = $1; }
     ;
 
 statement:
