@@ -156,4 +156,49 @@ int is_star_projection(ra_attribute_list_t* attrs);
 char* expression_to_string(expression_t* expr);
 void optimize_ra_tree(ra_node_t** node);  /* Optional: basic optimizations */
 
+/* Data structures for RA execution results */
+typedef struct ra_column {
+    char* name;                 /* Column name */
+    char* table_name;          /* Table name (for qualified names) */
+    struct ra_column* next;
+} ra_column_t;
+
+typedef struct ra_row {
+    char** values;              /* Array of string values */
+    int column_count;
+    struct ra_row* next;
+} ra_row_t;
+
+typedef struct ra_result_set {
+    ra_column_t* columns;       /* Column metadata */
+    ra_row_t* rows;            /* Row data */
+    int column_count;
+    int row_count;
+} ra_result_set_t;
+
+/* RA execution engine functions */
+ra_result_set_t* execute_ra_node(ra_node_t* node);
+ra_result_set_t* execute_ra_relation(ra_node_t* node);
+ra_result_set_t* execute_ra_selection(ra_node_t* node);
+ra_result_set_t* execute_ra_projection(ra_node_t* node);
+ra_result_set_t* execute_ra_join(ra_node_t* node);
+
+/* Result set management functions */
+ra_result_set_t* create_ra_result_set(void);
+ra_column_t* create_ra_column(const char* name, const char* table_name);
+ra_row_t* create_ra_row(int column_count);
+void add_ra_column(ra_result_set_t* result_set, ra_column_t* column);
+void add_ra_row(ra_result_set_t* result_set, ra_row_t* row);
+void free_ra_result_set(ra_result_set_t* result_set);
+void free_ra_column(ra_column_t* column);
+void free_ra_row(ra_row_t* row);
+
+/* RA expression evaluation */
+int evaluate_ra_condition(ra_condition_t* condition, ra_row_t* row, ra_result_set_t* context);
+char* get_column_value(ra_row_t* row, const char* column_name, const char* table_name, ra_result_set_t* context);
+int find_column_index(const char* column_name, const char* table_name, ra_result_set_t* context);
+
+/* Display functions for result sets */
+void print_ra_result_set(ra_result_set_t* result_set);
+
 #endif /* RELATIONAL_ALGEBRA_H */

@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include "../headers/table_engine.h"
 #include "../headers/tokens.h"
+#include "../headers/relational_algebra.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
@@ -180,108 +181,39 @@ table_result_t execute_insert(ast_node_t* insert_stmt) {
 
 /* Execute SELECT statement */
 table_result_t execute_select(ast_node_t* select_stmt) {
+    /* Use the new relational algebra execution engine */
+    return execute_select_with_ra(select_stmt);
+}
+
+/* Execute SELECT statement using relational algebra */
+table_result_t execute_select_with_ra(ast_node_t* select_stmt) {
     if (!select_stmt || select_stmt->type != NODE_SELECT_STMT) {
         return TABLE_ERROR_INVALID_SCHEMA;
     }
     
-    table_ref_t* from_table = select_stmt->data.select_stmt.from_table;
-    column_list_t* columns = select_stmt->data.select_stmt.columns;
-    expression_t* where_clause = select_stmt->data.select_stmt.where_clause;
-    
-    if (!from_table || !from_table->table_name) {
-        printf("Error: No table specified in FROM clause.\n");
+    /* Convert SQL to relational algebra */
+    ra_node_t* ra_tree = sql_to_relational_algebra(select_stmt);
+    if (!ra_tree) {
+        printf("Error: Could not convert SQL to relational algebra.\n");
         return TABLE_ERROR_INVALID_SCHEMA;
     }
     
-    char* table_name = from_table->table_name;
+    /* Execute the relational algebra tree */
+    ra_result_set_t* result_set = execute_ra_node(ra_tree);
     
-    /* Check if table exists */
-    if (!table_exists(table_name)) {
-        printf("Table '%s' does not exist.\n", table_name);
-        return TABLE_ERROR_TABLE_NOT_FOUND;
-    }
-    
-    /* Load table metadata */
-    table_metadata_t* metadata = load_table_metadata(table_name);
-    if (!metadata) {
-        printf("Error: Could not load table metadata for '%s'.\n", table_name);
+    if (result_set) {
+        /* Display results */
+        print_ra_result_set(result_set);
+        
+        /* Clean up */
+        free_ra_result_set(result_set);
+        free_ra_node(ra_tree);
+        return TABLE_SUCCESS;
+    } else {
+        printf("Error: Failed to execute query.\n");
+        free_ra_node(ra_tree);
         return TABLE_ERROR_FILE_IO;
     }
-    
-    /* Read table data */
-    char** rows;
-    int row_count;
-    table_result_t result = read_table_data(table_name, &row_count, &rows);
-    
-    if (result != TABLE_SUCCESS) {
-        free_table_metadata(metadata);
-        return result;
-    }
-    
-    /* Prepare column names - for now use hardcoded names based on users table */
-    char** column_names = malloc(metadata->column_count * sizeof(char*));
-    if (metadata->column_count == 5) {
-        /* Hardcoded for users table - in full implementation, parse from JSON */
-        column_names[0] = "id";
-        column_names[1] = "name"; 
-        column_names[2] = "email";
-        column_names[3] = "age";
-        column_names[4] = "created_at";
-    } else {
-        /* Generic column names */
-        for (int i = 0; i < metadata->column_count; i++) {
-            char* col_name = malloc(20);
-            snprintf(col_name, 20, "column_%d", i+1);
-            column_names[i] = col_name;
-        }
-    }
-    
-    /* For now, just print all rows (WHERE clause filtering would go here) */
-    printf("\nSELECT results from table '%s':\n", table_name);
-    printf("=====================================\n");
-    
-    /* Print column headers */
-    for (int i = 0; i < metadata->column_count; i++) {
-        printf("%-15s", column_names[i]);
-        if (i < metadata->column_count - 1) printf(" | ");
-    }
-    printf("\n");
-    
-    /* Print separator */
-    for (int i = 0; i < metadata->column_count; i++) {
-        printf("---------------");
-        if (i < metadata->column_count - 1) printf("-+-");
-    }
-    printf("\n");
-    
-    /* Print data rows */
-    for (int i = 0; i < row_count; i++) {
-        char* row_copy = strdup(rows[i]);
-        char* token = strtok(row_copy, ",");
-        int col_index = 0;
-        
-        while (token && col_index < metadata->column_count) {
-            printf("%-15s", token);
-            if (col_index < metadata->column_count - 1) printf(" | ");
-            token = strtok(NULL, ",");
-            col_index++;
-        }
-        printf("\n");
-        free(row_copy);
-    }
-    
-    printf("\n%d row(s) returned.\n", row_count);
-    
-    /* Free allocated column names (only for generic ones) */
-    if (metadata->column_count != 5) {
-        for (int i = 0; i < metadata->column_count; i++) {
-            free(column_names[i]);
-        }
-    }
-    free(column_names);
-    free_table_rows(rows, row_count);
-    free_table_metadata(metadata);
-    return TABLE_SUCCESS;
 }
 
 /* Check if table exists */

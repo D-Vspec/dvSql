@@ -1,5 +1,6 @@
 #include "../headers/relational_algebra.h"
 #include "../headers/tokens.h"
+#include "../headers/table_engine.h"
 
 /* Constructor functions for RA nodes */
 ra_node_t* create_ra_relation(const char* name, const char* alias) {
@@ -858,4 +859,425 @@ void optimize_ra_tree(ra_node_t** node) {
      * - Reorder joins based on selectivity
      * - Convert cartesian products + selections to joins
      */
+}
+
+/* ========================= RA EXECUTION ENGINE ========================= */
+
+/* Execute a relational algebra node and return result set */
+ra_result_set_t* execute_ra_node(ra_node_t* node) {
+    if (!node) return NULL;
+    
+    switch (node->type) {
+        case RA_RELATION:
+            return execute_ra_relation(node);
+        case RA_SELECTION:
+            return execute_ra_selection(node);
+        case RA_PROJECTION:
+            return execute_ra_projection(node);
+        case RA_THETA_JOIN:
+        case RA_LEFT_JOIN:
+        case RA_RIGHT_JOIN:
+        case RA_NATURAL_JOIN:
+            return execute_ra_join(node);
+        case RA_CARTESIAN:
+            return execute_ra_join(node);  /* Cartesian is a special case of join */
+        default:
+            printf("Warning: Unsupported RA operation type: %s\n", ra_operator_to_name(node->type));
+            return NULL;
+    }
+}
+
+/* Execute base relation - load data from CSV file */
+ra_result_set_t* execute_ra_relation(ra_node_t* node) {
+    if (!node || node->type != RA_RELATION) return NULL;
+    
+    const char* table_name = node->data.relation.name;
+    const char* table_alias = node->data.relation.alias;
+    
+    /* Check if table exists */
+    if (!table_exists(table_name)) {
+        printf("Error: Table '%s' does not exist.\n", table_name);
+        return NULL;
+    }
+    
+    /* Load table metadata */
+    table_metadata_t* metadata = load_table_metadata(table_name);
+    if (!metadata) {
+        printf("Error: Could not load metadata for table '%s'.\n", table_name);
+        return NULL;
+    }
+    
+    /* Read table data */
+    char** rows;
+    int row_count;
+    table_result_t result = read_table_data(table_name, &row_count, &rows);
+    
+    if (result != TABLE_SUCCESS) {
+        free_table_metadata(metadata);
+        return NULL;
+    }
+    
+    /* Create result set */
+    ra_result_set_t* result_set = create_ra_result_set();
+    if (!result_set) {
+        free_table_metadata(metadata);
+        free_table_rows(rows, row_count);
+        return NULL;
+    }
+    
+    /* Add columns - hardcoded for users table, should parse from JSON in full implementation */
+    if (metadata->column_count == 5) {
+        add_ra_column(result_set, create_ra_column("id", table_alias ? table_alias : table_name));
+        add_ra_column(result_set, create_ra_column("name", table_alias ? table_alias : table_name));
+        add_ra_column(result_set, create_ra_column("email", table_alias ? table_alias : table_name));
+        add_ra_column(result_set, create_ra_column("age", table_alias ? table_alias : table_name));
+        add_ra_column(result_set, create_ra_column("created_at", table_alias ? table_alias : table_name));
+    } else {
+        /* Generic column names */
+        for (int i = 0; i < metadata->column_count; i++) {
+            char col_name[20];
+            snprintf(col_name, 20, "column_%d", i+1);
+            add_ra_column(result_set, create_ra_column(col_name, table_alias ? table_alias : table_name));
+        }
+    }
+    
+    /* Add rows */
+    for (int i = 0; i < row_count; i++) {
+        ra_row_t* row = create_ra_row(metadata->column_count);
+        if (!row) continue;
+        
+        /* Parse CSV row */
+        char* row_copy = strdup(rows[i]);
+        char* token = strtok(row_copy, ",");
+        int col_index = 0;
+        
+        while (token && col_index < metadata->column_count) {
+            row->values[col_index] = strdup(token);
+            token = strtok(NULL, ",");
+            col_index++;
+        }
+        
+        /* Fill remaining columns with NULL if necessary */
+        while (col_index < metadata->column_count) {
+            row->values[col_index] = strdup("NULL");
+            col_index++;
+        }
+        
+        add_ra_row(result_set, row);
+        free(row_copy);
+    }
+    
+    free_table_metadata(metadata);
+    free_table_rows(rows, row_count);
+    
+    return result_set;
+}
+
+/* Execute selection (WHERE clause) */
+ra_result_set_t* execute_ra_selection(ra_node_t* node) {
+    if (!node || node->type != RA_SELECTION) return NULL;
+    
+    /* Get input result set */
+    ra_result_set_t* input_set = execute_ra_node(node->data.selection.input);
+    if (!input_set) return NULL;
+    
+    /* Create output result set with same columns */
+    ra_result_set_t* result_set = create_ra_result_set();
+    if (!result_set) {
+        free_ra_result_set(input_set);
+        return NULL;
+    }
+    
+    /* Copy column structure */
+    ra_column_t* current_col = input_set->columns;
+    while (current_col) {
+        add_ra_column(result_set, create_ra_column(current_col->name, current_col->table_name));
+        current_col = current_col->next;
+    }
+    
+    /* Filter rows based on condition */
+    ra_row_t* current_row = input_set->rows;
+    while (current_row) {
+        if (evaluate_ra_condition(node->data.selection.condition, current_row, input_set)) {
+            /* Create copy of row for result set */
+            ra_row_t* new_row = create_ra_row(input_set->column_count);
+            if (new_row) {
+                for (int i = 0; i < input_set->column_count; i++) {
+                    new_row->values[i] = strdup(current_row->values[i]);
+                }
+                add_ra_row(result_set, new_row);
+            }
+        }
+        current_row = current_row->next;
+    }
+    
+    free_ra_result_set(input_set);
+    return result_set;
+}
+
+/* Execute projection (SELECT columns) */
+ra_result_set_t* execute_ra_projection(ra_node_t* node) {
+    if (!node || node->type != RA_PROJECTION) return NULL;
+    
+    /* Get input result set */
+    ra_result_set_t* input_set = execute_ra_node(node->data.projection.input);
+    if (!input_set) return NULL;
+    
+    /* Handle star projection */
+    if (is_star_projection(node->data.projection.attributes)) {
+        return input_set;  /* Return input unchanged */
+    }
+    
+    /* Create output result set */
+    ra_result_set_t* result_set = create_ra_result_set();
+    if (!result_set) {
+        free_ra_result_set(input_set);
+        return NULL;
+    }
+    
+    /* Map projected columns */
+    ra_attribute_t* attr = node->data.projection.attributes->attributes;
+    int* column_indices = malloc(node->data.projection.attributes->count * sizeof(int));
+    int valid_columns = 0;
+    
+    while (attr) {
+        int col_index = find_column_index(attr->name, attr->table_name, input_set);
+        if (col_index >= 0) {
+            column_indices[valid_columns] = col_index;
+            
+            /* Add column to result set */
+            const char* col_name = attr->alias ? attr->alias : attr->name;
+            add_ra_column(result_set, create_ra_column(col_name, attr->table_name));
+            valid_columns++;
+        }
+        attr = attr->next;
+    }
+    
+    /* Project rows */
+    ra_row_t* current_row = input_set->rows;
+    while (current_row) {
+        ra_row_t* new_row = create_ra_row(valid_columns);
+        if (new_row) {
+            for (int i = 0; i < valid_columns; i++) {
+                int src_col = column_indices[i];
+                new_row->values[i] = strdup(current_row->values[src_col]);
+            }
+            add_ra_row(result_set, new_row);
+        }
+        current_row = current_row->next;
+    }
+    
+    free(column_indices);
+    free_ra_result_set(input_set);
+    return result_set;
+}
+
+/* Execute join operations */
+ra_result_set_t* execute_ra_join(ra_node_t* node) {
+    /* Simplified join implementation - for basic functionality */
+    if (!node) return NULL;
+    
+    /* For now, just execute left side and return it */
+    /* Full join implementation would be more complex */
+    return execute_ra_node(node->data.binary_op.left);
+}
+
+/* ========================= RESULT SET MANAGEMENT ========================= */
+
+/* Create new result set */
+ra_result_set_t* create_ra_result_set(void) {
+    ra_result_set_t* result_set = malloc(sizeof(ra_result_set_t));
+    if (!result_set) return NULL;
+    
+    result_set->columns = NULL;
+    result_set->rows = NULL;
+    result_set->column_count = 0;
+    result_set->row_count = 0;
+    
+    return result_set;
+}
+
+/* Create new column */
+ra_column_t* create_ra_column(const char* name, const char* table_name) {
+    ra_column_t* column = malloc(sizeof(ra_column_t));
+    if (!column) return NULL;
+    
+    column->name = strdup(name);
+    column->table_name = table_name ? strdup(table_name) : NULL;
+    column->next = NULL;
+    
+    return column;
+}
+
+/* Create new row */
+ra_row_t* create_ra_row(int column_count) {
+    ra_row_t* row = malloc(sizeof(ra_row_t));
+    if (!row) return NULL;
+    
+    row->values = calloc(column_count, sizeof(char*));
+    if (!row->values) {
+        free(row);
+        return NULL;
+    }
+    
+    row->column_count = column_count;
+    row->next = NULL;
+    
+    return row;
+}
+
+/* Add column to result set */
+void add_ra_column(ra_result_set_t* result_set, ra_column_t* column) {
+    if (!result_set || !column) return;
+    
+    if (!result_set->columns) {
+        result_set->columns = column;
+    } else {
+        ra_column_t* current = result_set->columns;
+        while (current->next) {
+            current = current->next;
+        }
+        current->next = column;
+    }
+    result_set->column_count++;
+}
+
+/* Add row to result set */
+void add_ra_row(ra_result_set_t* result_set, ra_row_t* row) {
+    if (!result_set || !row) return;
+    
+    if (!result_set->rows) {
+        result_set->rows = row;
+    } else {
+        ra_row_t* current = result_set->rows;
+        while (current->next) {
+            current = current->next;
+        }
+        current->next = row;
+    }
+    result_set->row_count++;
+}
+
+/* Free result set */
+void free_ra_result_set(ra_result_set_t* result_set) {
+    if (!result_set) return;
+    
+    /* Free columns */
+    ra_column_t* current_col = result_set->columns;
+    while (current_col) {
+        ra_column_t* next_col = current_col->next;
+        free_ra_column(current_col);
+        current_col = next_col;
+    }
+    
+    /* Free rows */
+    ra_row_t* current_row = result_set->rows;
+    while (current_row) {
+        ra_row_t* next_row = current_row->next;
+        free_ra_row(current_row);
+        current_row = next_row;
+    }
+    
+    free(result_set);
+}
+
+/* Free column */
+void free_ra_column(ra_column_t* column) {
+    if (!column) return;
+    
+    free(column->name);
+    free(column->table_name);
+    free(column);
+}
+
+/* Free row */
+void free_ra_row(ra_row_t* row) {
+    if (!row) return;
+    
+    for (int i = 0; i < row->column_count; i++) {
+        free(row->values[i]);
+    }
+    free(row->values);
+    free(row);
+}
+
+/* ========================= EXPRESSION EVALUATION ========================= */
+
+/* Evaluate condition against a row */
+int evaluate_ra_condition(ra_condition_t* condition, ra_row_t* row, ra_result_set_t* context) {
+    if (!condition || !condition->expression) return 1;  /* No condition means all rows pass */
+    
+    /* For now, simplified evaluation - always returns true */
+    /* Full implementation would evaluate the expression tree against row data */
+    return 1;
+}
+
+/* Get column value from row */
+char* get_column_value(ra_row_t* row, const char* column_name, const char* table_name, ra_result_set_t* context) {
+    int col_index = find_column_index(column_name, table_name, context);
+    if (col_index >= 0 && col_index < row->column_count) {
+        return row->values[col_index];
+    }
+    return NULL;
+}
+
+/* Find column index in result set */
+int find_column_index(const char* column_name, const char* table_name, ra_result_set_t* context) {
+    if (!column_name || !context) return -1;
+    
+    ra_column_t* current = context->columns;
+    int index = 0;
+    
+    while (current) {
+        /* Match column name, optionally with table qualifier */
+        if (strcmp(current->name, column_name) == 0) {
+            if (!table_name || !current->table_name || strcmp(current->table_name, table_name) == 0) {
+                return index;
+            }
+        }
+        current = current->next;
+        index++;
+    }
+    
+    return -1;
+}
+
+/* Display result set */
+void print_ra_result_set(ra_result_set_t* result_set) {
+    if (!result_set) {
+        printf("No results.\n");
+        return;
+    }
+    
+    printf("\nQuery Results:\n");
+    printf("==============\n");
+    
+    /* Print column headers */
+    ra_column_t* current_col = result_set->columns;
+    while (current_col) {
+        printf("%-15s", current_col->name);
+        if (current_col->next) printf(" | ");
+        current_col = current_col->next;
+    }
+    printf("\n");
+    
+    /* Print separator */
+    for (int i = 0; i < result_set->column_count; i++) {
+        printf("---------------");
+        if (i < result_set->column_count - 1) printf("-+-");
+    }
+    printf("\n");
+    
+    /* Print rows */
+    ra_row_t* current_row = result_set->rows;
+    while (current_row) {
+        for (int i = 0; i < current_row->column_count; i++) {
+            printf("%-15s", current_row->values[i] ? current_row->values[i] : "NULL");
+            if (i < current_row->column_count - 1) printf(" | ");
+        }
+        printf("\n");
+        current_row = current_row->next;
+    }
+    
+    printf("\n%d row(s) returned.\n", result_set->row_count);
 }
