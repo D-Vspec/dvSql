@@ -1,0 +1,101 @@
+# Build artifacts and generated files
+*.o
+*.obj
+*.exe
+*.out
+*.app
+
+# Flex/Lex generated files
+lex.yy.c
+lex.yy.h
+
+# Yacc/Bison generated files (for future parser)
+y.tab.c
+y.tab.h
+yacc.output
+
+# Main executable
+sql_lexer
+sql_lexer.exe
+
+# Temporary and backup files
+*~
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+.#*
+\#*#
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-*
+.DS_Store
+Thumbs.db
+
+# Compilation database
+compile_commands.json
+
+# Debug and profiling files
+*.dSYM/
+gmon.out
+massif.out.*
+callgrind.out.*
+*.gcda
+*.gcno
+*.gcov
+
+# Core dumps
+core
+core.*
+
+# Test output files
+test_output/
+*.test
+test_*.out
+
+# Log files
+*.log
+
+# Package files
+*.tar.gz
+*.zip
+*.rar
+
+# Generated documentation (if using tools like Doxygen)
+html/
+latex/
+man/
+rtf/
+
+# CMake (if used in future)
+build/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile.cmake
+
+# Autotools (if used in future)
+autom4te.cache/
+config.status
+config.log
+configure
+
+# Dependencies
+deps/
+vendor/
+
+# Local configuration
+.env
+local.mk
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
