@@ -17,13 +17,13 @@ LEXER_TARGET = sql_lexer
 # Source files for parser
 PARSER_LEX_FILE = src/lex/sql_parser_lexer.l
 PARSER_YACC_FILE = src/yacc/sql_parser.y
-PARSER_C_FILES = src/c/tokens.c src/c/ast.c src/c/sql_parser.c src/c/table_engine.c
+PARSER_C_FILES = src/c/tokens.c src/c/ast.c src/c/sql_parser.c src/c/table_engine.c src/c/relational_algebra.c
 PARSER_GENERATED_C = lex.yy.c y.tab.c
 PARSER_GENERATED_H = y.tab.h
 PARSER_TARGET = sql_parser
 
 # Header files
-HEADER_FILES = src/headers/tokens.h src/headers/ast.h src/headers/table_engine.h
+HEADER_FILES = src/headers/tokens.h src/headers/ast.h src/headers/table_engine.h src/headers/relational_algebra.h
 
 # Object files
 LEXER_OBJECTS = $(LEXER_C_FILES:.c=.o) $(LEXER_GENERATED_C:.c=.o)
@@ -120,6 +120,30 @@ test-parser: $(PARSER_TARGET)
 # Test both lexer and parser
 test: test-lexer test-parser
 
+# Test relational algebra conversion
+test-ra: $(PARSER_TARGET)
+	@echo "Testing relational algebra conversion..."
+	@if [ -f tests/ra_test_basic_select.sql ]; then \
+		echo "=== Testing tests/ra_test_basic_select.sql ==="; \
+		./$(PARSER_TARGET) -a tests/ra_test_basic_select.sql; \
+		echo; \
+	fi
+	@if [ -f tests/ra_test_select_where.sql ]; then \
+		echo "=== Testing tests/ra_test_select_where.sql ==="; \
+		./$(PARSER_TARGET) -a tests/ra_test_select_where.sql; \
+		echo; \
+	fi
+	@if [ -f tests/ra_test_join.sql ]; then \
+		echo "=== Testing tests/ra_test_join.sql ==="; \
+		./$(PARSER_TARGET) -a tests/ra_test_join.sql; \
+		echo; \
+	fi
+	@if [ -f tests/ra_test_complex.sql ]; then \
+		echo "=== Testing tests/ra_test_complex.sql ==="; \
+		./$(PARSER_TARGET) -a tests/ra_test_complex.sql; \
+		echo; \
+	fi
+
 # Interactive test for lexer
 interactive-lexer: $(LEXER_TARGET)
 	@echo "Starting interactive lexer test..."
@@ -158,6 +182,7 @@ help:
 	@echo "  test             - Run tests for both lexer and parser"
 	@echo "  test-lexer       - Run tests for lexer only"
 	@echo "  test-parser      - Run tests for parser only"
+	@echo "  test-ra          - Run relational algebra conversion tests"
 	@echo "  interactive-lexer    - Start interactive lexer test"
 	@echo "  interactive-parser   - Start interactive parser test"
 	@echo "  install-deps     - Install required dependencies (Ubuntu/Debian)"
@@ -168,13 +193,16 @@ help:
 	@echo "  make                     # Build both lexer and parser"
 	@echo "  make parser              # Build parser only"
 	@echo "  make test-parser         # Run parser tests"
+	@echo "  make test-ra             # Run relational algebra tests"
 	@echo "  make interactive-parser  # Interactive parser testing"
 	@echo "  ./sql_lexer file.sql     # Tokenize a file with lexer"
 	@echo "  ./sql_parser file.sql    # Parse a file and show AST"
 	@echo "  ./sql_parser -v file.sql # Parse with verbose output"
 	@echo "  ./sql_parser -q file.sql # Parse without showing AST"
+	@echo "  ./sql_parser -r file.sql # Show relational algebra conversion"
+	@echo "  ./sql_parser -a file.sql # Show only relational algebra"
 	@echo "  echo 'SELECT * FROM users;' | ./sql_parser  # Parse from stdin"
 
 # Declare phony targets
-.PHONY: all lexer parser clean distclean test test-lexer test-parser
+.PHONY: all lexer parser clean distclean test test-lexer test-parser test-ra
 .PHONY: interactive-lexer interactive-parser install-deps check-deps help

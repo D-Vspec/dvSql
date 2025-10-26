@@ -1,15 +1,21 @@
-# dvSQL Lexer
+# dvSQL Parser
 
-A comprehensive SQL lexer implemented using flex that tokenizes SQL statements and identifies various SQL language constructs.
+A comprehensive SQL parser with relational algebra conversion implemented using flex and yacc/bison that parses SQL statements, builds Abstract Syntax Trees (AST), and converts queries to relational algebra notation.
 
 ## Quick Start
 
 ```bash
-# Build the lexer
+# Build the parser
 make
 
-# Test with a simple query
-echo "SELECT id, name FROM users WHERE age > 18;" | ./sql_lexer
+# Parse and show AST
+echo "SELECT id, name FROM users WHERE age > 18;" | ./sql_parser
+
+# Convert to relational algebra
+echo "SELECT id, name FROM users WHERE age > 18;" | ./sql_parser -a
+
+# Parse and execute query
+./sql_parser tests/parser_test_select.sql
 
 # Run comprehensive tests
 make test
@@ -17,28 +23,56 @@ make test
 
 ## Features
 
-- **50+ SQL keywords** - SELECT, JOIN, CREATE, etc.
-- **Data types** - INTEGER, VARCHAR, TIMESTAMP, etc.  
-- **Operators** - Comparison, arithmetic, logical
-- **Literals** - Strings, numbers, booleans
-- **Comments** - Line (`--`) and block (`/* */`) comments
-- **Position tracking** - Line and column information
-- **Error handling** - Unknown token detection
+- **Complete SQL parsing** - SELECT, INSERT, CREATE, DROP, etc.
+- **Abstract Syntax Tree (AST)** - Full AST generation and pretty printing
+- **Relational Algebra Conversion** - Convert SELECT queries to relational algebra notation
+- **Query Execution** - Execute parsed queries on CSV data storage
+- **Position tracking** - Line and column information for errors
+- **Comprehensive testing** - Extensive test suite included
 
-## Output Example
+## Relational Algebra Support
 
+The parser can convert SQL SELECT statements to relational algebra notation supporting:
+
+- **σ (Selection)** - WHERE clause conditions
+- **π (Projection)** - SELECT column lists  
+- **⋈ (Join)** - Inner, left, right joins with conditions
+- **× (Cartesian Product)** - Cross joins
+- **Multiple output formats** - Tree view, mathematical notation, linear notation
+
+### Example
+
+```sql
+SELECT u.name, p.title 
+FROM users u 
+JOIN posts p ON u.id = p.user_id 
+WHERE u.age > 18;
 ```
-Line 1, Col 1: SELECT          'SELECT'
-Line 1, Col 8: IDENTIFIER      'id'
-Line 1, Col 10: COMMA           ','
-Line 1, Col 12: IDENTIFIER      'name'
-Line 1, Col 17: FROM            'FROM'
-Line 1, Col 22: IDENTIFIER      'users'
-Line 1, Col 28: WHERE           'WHERE'
-Line 1, Col 34: IDENTIFIER      'age'
-Line 1, Col 38: GREATER_THAN    '>'
-Line 1, Col 40: INTEGER_LITERAL '18'
-Line 1, Col 42: SEMICOLON       ';'
+
+**Converts to:**
+```
+π_{u.name, p.title}(σ_{u.age > 18}((users(u) ⋈θ_{u.id = p.user_id} posts(p))))
+```
+
+## Command Line Options
+
+```bash
+./sql_parser [OPTIONS] [file]
+
+OPTIONS:
+  -h          Show help message
+  -v          Verbose output  
+  -q          Quiet mode (don't print AST)
+  -n          Parse only (don't execute statements)
+  -r          Show relational algebra conversion
+  -a          Show only relational algebra (implies -q -n -r)
+  -f file     Parse the specified file
+
+EXAMPLES:
+  ./sql_parser query.sql           # Parse and execute
+  ./sql_parser -r query.sql        # Show relational algebra  
+  ./sql_parser -a query.sql        # Show only relational algebra
+  echo 'SELECT * FROM users;' | ./sql_parser -a  # Pipe to parser
 ```
 
 ## Documentation
@@ -72,12 +106,12 @@ Line 1, Col 42: SEMICOLON       ';'
 
 **Ubuntu/Debian:**
 ```bash
-sudo apt-get install flex build-essential
+sudo apt-get install flex bison build-essential
 ```
 
 **macOS:**
 ```bash
-brew install flex
+brew install flex bison
 ```
 
 **Check installation:**
@@ -90,24 +124,31 @@ make check-deps
 ### Basic Usage
 
 ```bash
-# Tokenize from standard input
-./sql_lexer
+# Parse and execute from file
+./sql_parser query.sql
+
+# Parse from standard input  
+./sql_parser
 # Type SQL and press Ctrl+D when done
 
-# Tokenize a file
-./sql_lexer filename.sql
+# Show relational algebra conversion
+./sql_parser -a query.sql
 
-# Pipe SQL to lexer
-echo "CREATE TABLE users (id INT, name VARCHAR(50));" | ./sql_lexer
+# Parse only without execution
+./sql_parser -n query.sql
 ```
 
-### Command Line Options
+### Relational Algebra Mode
 
 ```bash
-make                    # Build the lexer
-make test              # Run all tests  
-make clean             # Clean build files
-make interactive       # Interactive mode
+# Show tree format, mathematical and linear notation
+./sql_parser -r query.sql
+
+# Show only relational algebra (no AST or execution)  
+./sql_parser -a query.sql
+
+# Test relational algebra conversion
+make test-ra
 ```
 
 ## Project Structure

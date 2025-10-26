@@ -6,6 +6,7 @@
 #include "../headers/tokens.h"
 #include "../headers/ast.h"
 #include "../headers/table_engine.h"
+#include "../headers/relational_algebra.h"
 
 /* External variables from lexer and parser */
 extern FILE* yyin;
@@ -22,7 +23,9 @@ int main(int argc, char** argv) {
     int opt;
     int verbose = 0;
     int show_ast = 1;
-    int execute_stmt = 1;  /* Execute statements by default */
+    int show_ra = 0;        /* Show relational algebra */
+    int ra_only = 0;        /* Show only relational algebra */
+    int execute_stmt = 1;   /* Execute statements by default */
     const char* input_file = NULL;
     
     /* Initialize table engine */
@@ -33,7 +36,7 @@ int main(int argc, char** argv) {
     }
     
     /* Parse command line options */
-    while ((opt = getopt(argc, argv, "hvqnf:")) != -1) {
+    while ((opt = getopt(argc, argv, "hvqnraf:")) != -1) {
         switch (opt) {
             case 'h':
                 print_usage(argv[0]);
@@ -46,6 +49,15 @@ int main(int argc, char** argv) {
                 break;
             case 'n':
                 execute_stmt = 0;  /* Parse only, don't execute */
+                break;
+            case 'r':
+                show_ra = 1;       /* Show relational algebra */
+                break;
+            case 'a':
+                ra_only = 1;       /* Show only relational algebra */
+                show_ast = 0;
+                show_ra = 1;
+                execute_stmt = 0;
                 break;
             case 'f':
                 input_file = optarg;
@@ -85,6 +97,32 @@ int main(int argc, char** argv) {
             printf("===========\n");
             print_ast(ast_root, 0);
             printf("\n");
+        }
+        
+        /* Convert to relational algebra if requested */
+        if (show_ra) {
+            ra_node_t* ra_tree = sql_to_relational_algebra(ast_root);
+            if (ra_tree) {
+                printf("\nRelational Algebra:\n");
+                printf("==================\n");
+                
+                printf("Tree Format:\n");
+                print_ra_tree(ra_tree, 0);
+                printf("\n");
+                
+                printf("Mathematical Notation:\n");
+                print_ra_mathematical(ra_tree);
+                printf("\n\n");
+                
+                printf("Linear Notation:\n");
+                print_ra_linear(ra_tree);
+                printf("\n\n");
+                
+                /* Clean up RA tree */
+                free_ra_node(ra_tree);
+            } else {
+                printf("\nCould not convert to relational algebra (unsupported statement type)\n\n");
+            }
         }
         
         /* Execute statement if requested */
@@ -152,6 +190,8 @@ void print_usage(const char* program_name) {
     printf("  -v          Verbose output\n");
     printf("  -q          Quiet mode (don't print AST)\n");
     printf("  -n          Parse only (don't execute statements)\n");
+    printf("  -r          Show relational algebra conversion\n");
+    printf("  -a          Show only relational algebra (implies -q -n -r)\n");
     printf("  -f file     Parse the specified file\n");
     printf("\nEXAMPLES:\n");
     printf("  %s query.sql           # Parse and execute query.sql\n", program_name);
@@ -160,6 +200,8 @@ void print_usage(const char* program_name) {
     printf("  echo 'SELECT * FROM users;' | %s  # Parse from stdin\n", program_name);
     printf("  %s -q query.sql        # Parse and execute without printing AST\n", program_name);
     printf("  %s -n query.sql        # Parse only without executing\n", program_name);
+    printf("  %s -r query.sql        # Show relational algebra conversion\n", program_name);
+    printf("  %s -a query.sql        # Show only relational algebra\n", program_name);
     printf("\nSUPPORTED SQL STATEMENTS:\n");
     printf("  - SELECT (with WHERE, JOIN, ORDER BY, GROUP BY, HAVING) [fully functional]\n");
     printf("  - INSERT INTO ... VALUES [fully functional]\n");
@@ -167,6 +209,9 @@ void print_usage(const char* program_name) {
     printf("  - DELETE FROM ... WHERE [parse only]\n");
     printf("  - CREATE TABLE [fully functional]\n");
     printf("  - DROP TABLE [fully functional]\n");
+    printf("\nRELATIONAL ALGEBRA CONVERSION:\n");
+    printf("  Supports conversion of SELECT statements to relational algebra notation\n");
+    printf("  including σ (selection), π (projection), ⋈ (join), × (cartesian product)\n");
     printf("\nDATA STORAGE:\n");
     printf("  - Table schemas: data/schemas/\n");
     printf("  - Table data: data/tables/\n");
