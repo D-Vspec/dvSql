@@ -1267,13 +1267,194 @@ void free_ra_row(ra_row_t* row) {
 
 /* ========================= EXPRESSION EVALUATION ========================= */
 
+/* Forward declaration for expression evaluation */
+static char* evaluate_ra_expression(expression_t* expr, ra_row_t* row, ra_result_set_t* context);
+static int compare_values(const char* left_val, const char* right_val, int operator);
+
 /* Evaluate condition against a row */
 int evaluate_ra_condition(ra_condition_t* condition, ra_row_t* row, ra_result_set_t* context) {
     if (!condition || !condition->expression) return 1;  /* No condition means all rows pass */
     
-    /* For now, simplified evaluation - always returns true */
-    /* Full implementation would evaluate the expression tree against row data */
+    expression_t* expr = condition->expression;
+    
+    /* Handle binary operations (comparisons, AND, OR) */
+    if (expr->type == EXPR_BINARY_OP) {
+        int operator = expr->data.binary_op.operator;
+        
+        /* Handle logical operators */
+        if (operator == AND) {
+            ra_condition_t left_cond = {expr->data.binary_op.left, NULL};
+            ra_condition_t right_cond = {expr->data.binary_op.right, NULL};
+            return evaluate_ra_condition(&left_cond, row, context) && 
+                   evaluate_ra_condition(&right_cond, row, context);
+        }
+        if (operator == OR) {
+            ra_condition_t left_cond = {expr->data.binary_op.left, NULL};
+            ra_condition_t right_cond = {expr->data.binary_op.right, NULL};
+            return evaluate_ra_condition(&left_cond, row, context) || 
+                   evaluate_ra_condition(&right_cond, row, context);
+        }
+        
+        /* Handle comparison operators */
+        if (operator == EQUAL || operator == NOT_EQUAL || 
+            operator == LESS_THAN || operator == GREATER_THAN ||
+            operator == LESS_EQUAL || operator == GREATER_EQUAL) {
+            
+            char* left_val = evaluate_ra_expression(expr->data.binary_op.left, row, context);
+            char* right_val = evaluate_ra_expression(expr->data.binary_op.right, row, context);
+            
+            if (!left_val || !right_val) {
+                free(left_val);
+                free(right_val);
+                return 0;  /* NULL comparison is false */
+            }
+            
+            int result = compare_values(left_val, right_val, operator);
+            free(left_val);
+            free(right_val);
+            return result;
+        }
+    }
+    
+    /* Handle unary operations */
+    if (expr->type == EXPR_UNARY_OP && expr->data.unary_op.operator == NOT) {
+        ra_condition_t inner_cond = {expr->data.unary_op.operand, NULL};
+        return !evaluate_ra_condition(&inner_cond, row, context);
+    }
+    
+    /* Default: condition not recognized */
     return 1;
+}
+
+/* Evaluate an expression to a string value */
+static char* evaluate_ra_expression(expression_t* expr, ra_row_t* row, ra_result_set_t* context) {
+    if (!expr) return NULL;
+    
+    char* result = malloc(256);
+    if (!result) return NULL;
+    
+    switch (expr->type) {
+        case EXPR_LITERAL:
+            /* Return literal value as string */
+            switch (expr->literal_type) {
+                case INTEGER_LITERAL:  /* 260 */
+                    snprintf(result, 256, "%d", expr->data.literal.int_val);
+                    break;
+                case DECIMAL_LITERAL:  /* 261 */
+                    snprintf(result, 256, "%.2f", expr->data.literal.float_val);
+                    break;
+                case STRING_LITERAL:  /* 259 */
+                    if (expr->data.literal.string_val) {
+                        snprintf(result, 256, "%s", expr->data.literal.string_val);
+                    } else {
+                        free(result);
+                        return NULL;
+                    }
+                    break;
+                case NULL_TOK:  /* 278 */
+                    free(result);
+                    return NULL;
+                default:
+                    free(result);
+                    return NULL;
+            }
+            break;
+            
+        case EXPR_IDENTIFIER:
+            /* Look up column value in the current row */
+            {
+                char* col_val = get_column_value(row, expr->data.identifier, NULL, context);
+                if (col_val) {
+                    snprintf(result, 256, "%s", col_val);
+                } else {
+                    free(result);
+                    return NULL;
+                }
+            }
+            break;
+            
+        case EXPR_COLUMN_REF:
+            /* Look up column value with table qualifier */
+            {
+                char* col_val = get_column_value(row, 
+                    expr->data.column_ref.column_name,
+                    expr->data.column_ref.table_name,
+                    context);
+                if (col_val) {
+                    snprintf(result, 256, "%s", col_val);
+                } else {
+                    free(result);
+                    return NULL;
+                }
+            }
+            break;
+            
+        default:
+            free(result);
+            return NULL;
+    }
+    
+    return result;
+}
+
+/* Compare two string values based on operator */
+static int compare_values(const char* left_val, const char* right_val, int operator) {
+    if (!left_val || !right_val) return 0;
+    
+    /* Try to parse as numbers for numeric comparison */
+    char* endptr1 = NULL;
+    char* endptr2 = NULL;
+    long left_num = strtol(left_val, &endptr1, 10);
+    long right_num = strtol(right_val, &endptr2, 10);
+    
+    int is_numeric = (endptr1 && *endptr1 == '\0' && endptr2 && *endptr2 == '\0');
+    
+    switch (operator) {
+        case EQUAL:
+            if (is_numeric) {
+                return left_num == right_num;
+            } else {
+                return strcmp(left_val, right_val) == 0;
+            }
+            
+        case NOT_EQUAL:
+            if (is_numeric) {
+                return left_num != right_num;
+            } else {
+                return strcmp(left_val, right_val) != 0;
+            }
+            
+        case LESS_THAN:
+            if (is_numeric) {
+                return left_num < right_num;
+            } else {
+                return strcmp(left_val, right_val) < 0;
+            }
+            
+        case GREATER_THAN:
+            if (is_numeric) {
+                return left_num > right_num;
+            } else {
+                return strcmp(left_val, right_val) > 0;
+            }
+            
+        case LESS_EQUAL:
+            if (is_numeric) {
+                return left_num <= right_num;
+            } else {
+                return strcmp(left_val, right_val) <= 0;
+            }
+            
+        case GREATER_EQUAL:
+            if (is_numeric) {
+                return left_num >= right_num;
+            } else {
+                return strcmp(left_val, right_val) >= 0;
+            }
+            
+        default:
+            return 0;
+    }
 }
 
 /* Get column value from row */

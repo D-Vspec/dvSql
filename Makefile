@@ -20,7 +20,7 @@ PARSER_YACC_FILE = src/yacc/sql_parser.y
 PARSER_C_FILES = src/c/tokens.c src/c/ast.c src/c/sql_parser.c src/c/table_engine.c src/c/relational_algebra.c
 PARSER_GENERATED_C = lex.yy.c y.tab.c
 PARSER_GENERATED_H = y.tab.h
-PARSER_TARGET = sql_parser
+PARSER_TARGET = dvsql
 
 # Header files
 HEADER_FILES = src/headers/tokens.h src/headers/ast.h src/headers/table_engine.h src/headers/relational_algebra.h
