@@ -1,0 +1,47 @@
+# dvSQL Interactive Demo Session
+# This file shows a complete demo session you can copy-paste
+
+# Start dvSQL
+$ ./dvsql
+
+# 1. Check what tables exist
+dvSQL> SHOW TABLES;
+
+# 2. Look at the structure of the users table
+dvSQL> DESC users;
+
+# 3. View all data
+dvSQL> SELECT * FROM users;
+
+# 4. Get specific columns
+dvSQL> SELECT name, email FROM users;
+
+# 5. Filter by a single condition
+dvSQL> SELECT * FROM users WHERE id = 2;
+
+# 6. Numeric comparison
+dvSQL> SELECT name, age FROM users WHERE age > 25;
+
+# 7. String matching
+dvSQL> SELECT * FROM users WHERE name = 'Bob Johnson';
+
+# 8. Range query with AND
+dvSQL> SELECT * FROM users WHERE age >= 22 AND age <= 30;
+
+# 9. Multiple conditions with OR
+dvSQL> SELECT * FROM users WHERE id = 1 OR id = 4;
+
+# 10. Complex query with nested conditions
+dvSQL> SELECT name, age, email FROM users WHERE (age > 20 AND age < 30) OR id = 3;
+
+# 11. Not equal operator
+dvSQL> SELECT name, id FROM users WHERE id <> 2;
+
+# 12. Less than or equal
+dvSQL> SELECT name, age FROM users WHERE age <= 25;
+
+# 13. Combining all operators
+dvSQL> SELECT * FROM users WHERE age > 25 AND id < 4;
+
+# Exit
+dvSQL> (Press Ctrl+D or Ctrl+C)
